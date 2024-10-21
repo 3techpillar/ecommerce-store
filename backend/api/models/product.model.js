@@ -1,69 +1,27 @@
 import mongoose from "mongoose";
 
-const reviewSchema = mongoose.Schema(
-  {
-    name: { type: String, required: true },
-    rating: { type: Number, required: true },
-    comment: { type: String, required: true },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: "User",
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
-const offerSchema = mongoose.Schema(
-  {
-    offer_type: {
-      type: String,
-      enum: ["flat", "percentage"],
-      required: true,
-    },
-    flat_value: { type: Number, required: true },
-    discount_type: { type: Offer, required: true },
-  },
-  {
-    timestamps: true,
-  }
-);
-const priceSchema = mongoose.Schema(
-  {
-    price: { type: Number, required: true },
-    discount_type: { type: [offerSchema], required: true },
-    total_discount: { type: Number, required: true },
-    discounted_price: { type: Number, required: true },
-  },
-  {
-    timestamps: true,
-  }
-);
-
-const productSchema = mongoose.Schema(
+const productSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "User",
-    },
-    product_id: {
-      type: Number,
-      required: true,
     },
     sku: {
       type: String,
       required: true,
+      unique: true,
     },
     name: {
       type: String,
       required: true,
+      trim: true,
     },
     product_type: {
       type: String,
       required: true,
       default: "simple",
+      enum: ["simple", "variable"],
     },
     thumbnail: {
       type: String,
@@ -75,20 +33,27 @@ const productSchema = mongoose.Schema(
     },
     attributes: {
       type: [String],
+      default: [],
     },
     brand: {
       type: String,
       default: "General",
     },
     category: {
-      type: [String],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
       required: true,
     },
     description: {
       type: String,
       required: true,
     },
-    reviews: [reviewSchema],
+    reviews: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Review",
+      },
+    ],
     rating: {
       type: Number,
       required: true,
@@ -100,9 +65,9 @@ const productSchema = mongoose.Schema(
       default: 0,
     },
     price: {
-      type: [priceSchema],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Price",
       required: true,
-      default: 0,
     },
     stock: {
       type: Number,

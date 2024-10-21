@@ -93,7 +93,7 @@ export const signin = async (req, res, next) => {
         secure: process.env.NODE_ENV === "production",
         path: "/",
       })
-      .json(rest);
+      .json({ rest, token });
   } catch (error) {
     next(error);
   }

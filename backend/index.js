@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 
 import authRoutes from "./api/routes/auth.route.js";
 import categoryRoutes from "./api/routes/category.route.js";
+import productRoutes from "./api/routes/product.route.js";
 
 import { API_V } from "./api/utils/constant.js";
 
@@ -33,6 +34,7 @@ app.listen(port, () => {
 
 app.use(`/${API_V}/auth`, authRoutes);
 app.use(`/${API_V}/category`, categoryRoutes);
+app.use(`/${API_V}/product`, productRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
