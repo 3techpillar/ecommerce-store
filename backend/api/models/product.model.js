@@ -1,5 +1,21 @@
 import mongoose from "mongoose";
 
+const attributeSchema = new mongoose.Schema(
+  {
+    key: {
+      type: String,
+      required: true,
+    },
+    value: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
 const productSchema = new mongoose.Schema(
   {
     user: {
@@ -17,6 +33,14 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    description: {
+      type: String,
+      required: true,
+    },
+    slug: {
+      type: String,
+      required: true,
+    },
     product_type: {
       type: String,
       required: true,
@@ -32,7 +56,7 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     attributes: {
-      type: [String],
+      type: [attributeSchema],
       default: [],
     },
     brand: {
@@ -42,10 +66,6 @@ const productSchema = new mongoose.Schema(
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
-      required: true,
-    },
-    description: {
-      type: String,
       required: true,
     },
     reviews: [
@@ -81,6 +101,21 @@ const productSchema = new mongoose.Schema(
     is_manage_stock: {
       type: Boolean,
       default: true,
+    },
+    seo: {
+      title: {
+        type: String,
+        default: null,
+      },
+      description: {
+        type: String,
+        default: null,
+      },
+      keywords: [
+        {
+          type: String,
+        },
+      ],
     },
   },
   {
