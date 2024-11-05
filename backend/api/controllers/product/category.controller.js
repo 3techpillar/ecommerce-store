@@ -2,7 +2,7 @@ import Category from "../../models/category.model.js";
 import { errorHandler } from "../../utils/error.js";
 
 export const createCategory = async (req, res, next) => {
-  if (!req.user.isAdmin) {
+  if (!req.admin) {
     return next(errorHandler(403, "You are not allowed to create a category"));
   }
 
@@ -58,8 +58,44 @@ export const createCategory = async (req, res, next) => {
   }
 };
 
+export const getCategoryById = async (req, res, next) => {
+  if (!req.admin) {
+    return next(
+      errorHandler(403, "You are not allowed to access this category")
+    );
+  }
+
+  try {
+    const { categoryId } = req.params;
+
+    if (!categoryId) {
+      return next(errorHandler(400, "Category ID is required"));
+    }
+
+    const category = await Category.findById(categoryId);
+
+    if (!category) {
+      return next(errorHandler(404, "Category not found"));
+    }
+
+    // const categoryWithChildren = {
+    //   ...category.toObject(),
+    //   children: await Category.find({ parentCategory: categoryId }),
+    // };
+
+    return res.status(200).json({
+      message: "Category fetched successfully",
+      category: category,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
 export const updateCategory = async (req, res, next) => {
-  if (!req.user.isAdmin) {
+  if (!req.admin) {
     return next(errorHandler(403, "You are not allowed to create a category"));
   }
 
@@ -125,7 +161,7 @@ export const updateCategory = async (req, res, next) => {
 };
 
 export const deleteCategory = async (req, res, next) => {
-  if (!req.user.isAdmin) {
+  if (!req.admin) {
     return next(errorHandler(403, "You are not allowed to create a category"));
   }
 
@@ -159,7 +195,7 @@ export const deleteCategory = async (req, res, next) => {
 };
 
 export const getAllCategories = async (req, res, next) => {
-  if (!req.user.isAdmin) {
+  if (!req.admin) {
     return next(errorHandler(403, "You are not allowed to create a category"));
   }
 

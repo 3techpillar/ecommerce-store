@@ -4,7 +4,7 @@ import Offer from "../../models/offer.model.js";
 import { errorHandler } from "../../utils/error.js";
 
 export const createProduct = async (req, res, next) => {
-  if (!req.user.isAdmin) {
+  if (!req.admin) {
     return next(errorHandler(403, "You are not allowed to create a product"));
   }
 
@@ -59,7 +59,7 @@ export const createProduct = async (req, res, next) => {
       .replace(/^a-zA-Z0-9/g, "");
 
     const newProduct = await Product.create({
-      user: req.user.id,
+      user: req.admin.id,
       sku,
       name,
       slug: createSlug,
@@ -91,7 +91,7 @@ export const createProduct = async (req, res, next) => {
 };
 
 export const updateProduct = async (req, res, next) => {
-  if (!req.user.isAdmin) {
+  if (!req.admin) {
     return next(errorHandler(403, "You are not allowed to update a product"));
   }
 
@@ -201,7 +201,7 @@ export const updateProduct = async (req, res, next) => {
 };
 
 export const deleteProduct = async (req, res, next) => {
-  if (!req.user.isAdmin) {
+  if (!req.admin) {
     return next(errorHandler(403, "You are not allowed to delete a product"));
   }
 
