@@ -18,10 +18,10 @@ const attributeSchema = new mongoose.Schema(
 
 const productSchema = new mongoose.Schema(
   {
-    user: {
+    storeId: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
       required: true,
-      ref: "User",
     },
     sku: {
       type: String,
@@ -51,10 +51,12 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    images: {
-      type: [String],
-      required: true,
-    },
+    images: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Image",
+      },
+    ],
     attributes: {
       type: [attributeSchema],
       default: [],
@@ -111,11 +113,10 @@ const productSchema = new mongoose.Schema(
         type: String,
         default: null,
       },
-      keywords: [
-        {
-          type: String,
-        },
-      ],
+      keywords: {
+        type: String,
+        default: null,
+      },
     },
   },
   {

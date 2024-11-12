@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -23,17 +23,27 @@ const Navbar = () => {
   const { isLoggedIn, user, logout } = useAuthStore();
   const router = useRouter();
 
+  const [stores, setStores] = useState([]);
+
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (isLoggedIn && user) {
+      const fetchBusiness = async () => {
+        try {
+          const response = await api.get(
+            `/v1/setting/get-all-store/${user._id}`
+          );
+          const data = response.data;
+          setStores(data);
+        } catch (error) {
+          console.log("error while fetching business", error);
+        }
+      };
+
+      fetchBusiness();
+    } else if (!isLoggedIn) {
       router.push("/sign-in");
     }
   }, [isLoggedIn, router]);
-
-  const stores = [
-    { id: "1", name: "Shoe store" },
-    { id: "2", name: "Tshirt store" },
-    { id: "3", name: "Pants store" },
-  ];
 
   const handleSignout = async () => {
     try {

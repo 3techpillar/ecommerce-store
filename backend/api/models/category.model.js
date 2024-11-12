@@ -1,7 +1,28 @@
 import mongoose from "mongoose";
 
+const attributeSchema = new mongoose.Schema(
+  {
+    key: {
+      type: String,
+      required: true,
+    },
+    value: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
 const categorySchema = new mongoose.Schema(
   {
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      required: true,
+    },
     name: {
       type: String,
       required: true,
@@ -21,12 +42,8 @@ const categorySchema = new mongoose.Schema(
       default: 0,
     },
     attributes: {
-      attributes: [
-        {
-          key: String,
-          value: String,
-        },
-      ],
+      type: [attributeSchema],
+      default: [],
     },
     metaTitle: {
       type: String,
@@ -37,8 +54,8 @@ const categorySchema = new mongoose.Schema(
       default: "",
     },
     metaKeywords: {
-      type: [String],
-      default: [],
+      type: String,
+      default: "",
     },
     parentCategory: {
       type: mongoose.Schema.Types.ObjectId,

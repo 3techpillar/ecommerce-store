@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
@@ -20,9 +19,10 @@ import {
 } from "./ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { useParams, useRouter } from "next/navigation";
+import { useBusinessModal } from "@/hooks/use-business-modal";
 
 interface Store {
-  id: string;
+  _id: string;
   name: string;
 }
 
@@ -34,9 +34,11 @@ export default function StoreSwitcher({ items }: StoreSwitcherProps) {
   const params = useParams();
   const router = useRouter();
 
+  const businessModal = useBusinessModal();
+
   const formattedItems = items.map((item) => ({
     label: item.name,
-    value: item.id,
+    value: item._id,
   }));
 
   const currentStore = formattedItems.find(
@@ -58,32 +60,32 @@ export default function StoreSwitcher({ items }: StoreSwitcherProps) {
           size={"sm"}
           role="combobox"
           aria-expanded={open}
-          aria-label="Select a store"
+          aria-label="Select a Business"
           className={cn("w-[200px] justify-between")}
         >
           <StoreIcon className="mr-2 h-4 w-4" />
-          {currentStore?.label || "Select a store"}
+          {currentStore?.label || "Select a Business"}
           <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
           <CommandList>
-            <CommandInput placeholder="Search store..." />
+            <CommandInput placeholder="Search business..." />
             <CommandEmpty>No store found</CommandEmpty>
-            <CommandGroup heading="Stores">
-              {formattedItems.map((store) => (
+            <CommandGroup heading="Businesses">
+              {formattedItems.map((business) => (
                 <CommandItem
-                  key={store.value}
-                  onSelect={() => onStoreSelect(store)}
+                  key={business.value}
+                  onSelect={() => onStoreSelect(business)}
                   className="text-sm"
                 >
                   <StoreIcon className="mr-2 h-4 w-4" />
-                  {store.label}
+                  {business.label}
                   <Check
                     className={cn(
                       "ml-auto h-4 w-4",
-                      currentStore?.value === store.value
+                      currentStore?.value === business.value
                         ? "opacity-100"
                         : "opacity-0"
                     )}
@@ -98,10 +100,11 @@ export default function StoreSwitcher({ items }: StoreSwitcherProps) {
               <CommandItem
                 onSelect={() => {
                   setOpen(false);
+                  businessModal.onOpen();
                 }}
               >
                 <PlusCircle className="mr-2 h-5 w-5" />
-                Create Store
+                Create Business
               </CommandItem>
             </CommandGroup>
           </CommandList>

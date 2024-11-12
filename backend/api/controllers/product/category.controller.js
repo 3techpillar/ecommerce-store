@@ -32,7 +32,10 @@ export const createCategory = async (req, res, next) => {
       }
     }
 
+    const { storeId } = req.params;
+
     const newCategory = new Category({
+      storeId,
       name,
       description,
       icon,
@@ -215,5 +218,19 @@ export const getAllCategories = async (req, res, next) => {
     });
   } catch (error) {
     return next(errorHandler(500, "Server error", error.message));
+  }
+};
+
+export const getCategoriesByStoreId = async (req, res, next) => {
+  try {
+    const { storeId } = req.params;
+    const categories = await Category.find({ storeId });
+
+    console.log(categories);
+
+    res.status(200).json({ categories });
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    next(error);
   }
 };

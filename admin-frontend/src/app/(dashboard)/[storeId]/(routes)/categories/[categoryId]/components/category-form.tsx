@@ -3,13 +3,14 @@
 import * as z from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Trash } from "lucide-react";
 
+import api from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Form,
   FormControl,
@@ -21,10 +22,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Heading } from "@/components/ui/heading";
 import AlertModal from "@/modals/alert-modal";
-import api from "@/lib/axios";
-import { Trash } from "lucide-react";
-import ImageUpload from "@/components/ui/image-upload";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import ImageUpload from "@/components/ui/image-upload";
 
 const formSchema = z.object({
   name: z.string().min(1, "Category name is required"),
@@ -42,7 +48,7 @@ const formSchema = z.object({
     .optional(),
   metaTitle: z.string().default(""),
   metaDescription: z.string().default(""),
-  metaKeywords: z.array(z.string()).default([]),
+  metaKeywords: z.string().default(""),
   parentCategory: z.string().nullable().optional(),
 });
 
@@ -56,8 +62,28 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
   const params = useParams();
   const router = useRouter();
 
+  const [categories, setCategories] = useState([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  console.log(categories);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get(
+        `/v1/category/get-category-by-storeId/${params.storeId}`
+      );
+      console.log("fetch categories:", response.data.categories);
+
+      setCategories(response.data.categories);
+    } catch (error) {
+      console.log("Error while fetching category", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const title = initialData ? "Edit Category" : "Create Category";
   const description = initialData
@@ -78,12 +104,16 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
       attributes: [],
       metaTitle: "",
       metaDescription: "",
-      metaKeywords: [],
+      metaKeywords: "",
       parentCategory: null,
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const {
+    fields: attributeFields,
+    append: appendAttribute,
+    remove: removeAttribute,
+  } = useFieldArray({
     control: form.control,
     name: "attributes",
   });
@@ -97,12 +127,15 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
           values
         );
       } else {
-        await api.post(`/v1/category/create-category`, values);
+        await api.post(
+          `/v1/category/create-category/${params.storeId}`,
+          values
+        );
       }
       console.log(values);
 
       router.refresh();
-      router.push(`/categories`);
+      router.push(`/${params.storeId}/categories`);
       toast.success(toastMessage);
     } catch (error) {
       toast.error("Something went wrong!");
@@ -117,7 +150,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
       setLoading(true);
       await api.delete(`/v1/category/delete-category/${params.categoryId}`);
       router.refresh();
-      router.push("/categories");
+      router.push(`/${params.storeId}/categories`);
       toast.success("Category deleted.");
     } catch (error) {
       toast.error(
@@ -275,12 +308,6 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
                     <Input
                       disabled={loading}
                       {...field}
-                      value={field.value.join(", ")}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value.split(",").map((k) => k.trim())
-                        )
-                      }
                       placeholder="Enter meta keywords (comma separated)"
                     />
                   </FormControl>
@@ -295,12 +322,21 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
                 <FormItem>
                   <FormLabel>Parent Category ID</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      value={field.value || ""}
-                      onChange={(e) => field.onChange(e.target.value || null)}
-                      placeholder="Enter parent category ID (optional)"
-                    />
+                    <Select
+                      onValueChange={(value) => field.onChange(value)}
+                      defaultValue={field.value || ""}
+                    >
+                      <SelectTrigger disabled={loading}>
+                        <SelectValue placeholder="Select the parent category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category._id} value={category._id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -328,9 +364,9 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
 
           {/* Attributes Section */}
           <div>
-            <h2 className="text-lg font-medium">Attributes</h2>
-            {fields.map((item, index) => (
-              <div key={item.id} className="flex items-end gap-4 mb-4">
+            <h2 className="text-lg font-medium mb-4">Attributes</h2>
+            {attributeFields.map((field, index) => (
+              <div key={field.id} className="flex items-end gap-4 mb-4">
                 <FormField
                   control={form.control}
                   name={`attributes.${index}.key`}
@@ -368,7 +404,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
                 <Button
                   type="button"
                   variant="destructive"
-                  onClick={() => remove(index)}
+                  onClick={() => removeAttribute(index)}
                   disabled={loading}
                 >
                   Remove
@@ -377,7 +413,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
             ))}
             <Button
               type="button"
-              onClick={() => append({ key: "", value: "" })}
+              onClick={() => appendAttribute({ key: "", value: "" })}
               disabled={loading}
             >
               Add Attribute

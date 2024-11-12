@@ -27,13 +27,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   }, []);
 
   const onUpload = (result: any) => {
-    console.log(result);
-
-    if (result?.info?.secure_url) {
-      onChange(result.info.secure_url);
-    } else {
-      console.error("Upload result structure is unexpected:", result);
-    }
+    onChange(result.info.secure_url);
   };
 
   if (!isMounted) {

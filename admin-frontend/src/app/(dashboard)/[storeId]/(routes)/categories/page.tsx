@@ -6,14 +6,19 @@ import { format } from "date-fns";
 import { CategoryClient } from "./components/client";
 import { CategoryColumn } from "./components/columns";
 import api from "@/lib/axios";
+import { useParams } from "next/navigation";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
-  console.log(categories);
+  const params = useParams();
 
   const fetchCategories = async () => {
     try {
-      const response = await api.get("/v1/category/get-category");
+      const response = await api.get(
+        `/v1/category/get-category-by-storeId/${params.storeId}`
+      );
+      console.log("fetch categories:", response.data.categories);
+
       setCategories(response.data.categories);
     } catch (error) {
       console.log("Error while fetching category", error);
@@ -26,6 +31,7 @@ const Categories = () => {
 
   const formattedCategories: CategoryColumn[] = categories.map((item) => ({
     id: item._id,
+    icon: item.icon,
     name: item.name,
     createdAt: format(item.createdAt, "MMMM do yyyy"),
   }));
