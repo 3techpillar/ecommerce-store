@@ -13,6 +13,7 @@ export type ProductColumn = {
   name: string;
   price: number;
   category: string;
+  categoryId: string;
 };
 
 export const columns: ColumnDef<ProductColumn>[] = [
@@ -33,10 +34,27 @@ export const columns: ColumnDef<ProductColumn>[] = [
   {
     accessorKey: "sku",
     header: "Sku",
+    cell: ({ row }) => {
+      return <div className="w-[200px] line-clamp-1">{row.original.name}</div>;
+    },
   },
   {
     accessorKey: "name",
-    header: "Name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          className="p-0"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Name
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      return <div className="w-[200px] line-clamp-1">{row.original.name}</div>;
+    },
   },
   {
     accessorKey: "price",

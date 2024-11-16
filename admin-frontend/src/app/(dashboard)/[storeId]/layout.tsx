@@ -1,14 +1,13 @@
-import React from "react";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+// import { AppSidebar } from "@/components/app-sidebar";
+import SidebarWrapper from "@/components/navbar-wrapper";
 
-import NavbarWrapper from "@/components/navbar-wrapper";
-
-const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <NavbarWrapper />
-      {children}
-    </>
+    <SidebarProvider>
+      <SidebarWrapper />
+      <SidebarTrigger />
+      <main className="w-full">{children}</main>
+    </SidebarProvider>
   );
-};
-
-export default DashboardLayout;
+}

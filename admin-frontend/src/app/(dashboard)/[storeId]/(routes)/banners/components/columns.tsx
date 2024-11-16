@@ -4,21 +4,23 @@ import { ColumnDef } from "@tanstack/react-table";
 import { CellAction } from "./cell-action";
 import Image from "next/image";
 
-export type CategoryColumn = {
+export type BannerColumn = {
   id: string;
-  icon: string;
-  name: string;
-  createdAt: string;
+  url: string;
+  altText: string;
+  title: string;
+  bannerPosition: string;
+  isVisible: boolean;
 };
 
-export const columns: ColumnDef<CategoryColumn>[] = [
+export const columns: ColumnDef<BannerColumn>[] = [
   {
     id: "icon",
     cell: ({ row }) => (
       <div className="relative w-8 h-8">
         <Image
-          src={row.original.icon}
-          alt={row.original.name}
+          src={row.original.url}
+          alt={row.original.altText}
           fill
           className="object-cover rounded-md"
         />
@@ -27,12 +29,16 @@ export const columns: ColumnDef<CategoryColumn>[] = [
     header: "Image",
   },
   {
-    accessorKey: "name",
-    header: "Name",
+    accessorKey: "title",
+    header: "Title",
   },
   {
-    accessorKey: "createdAt",
-    header: "Date",
+    accessorKey: "bannerPosition",
+    header: "Position",
+  },
+  {
+    accessorKey: "isVisible",
+    header: "Visibility",
   },
   {
     id: "Action",

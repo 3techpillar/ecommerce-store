@@ -81,11 +81,6 @@ export const getCategoryById = async (req, res, next) => {
       return next(errorHandler(404, "Category not found"));
     }
 
-    // const categoryWithChildren = {
-    //   ...category.toObject(),
-    //   children: await Category.find({ parentCategory: categoryId }),
-    // };
-
     return res.status(200).json({
       message: "Category fetched successfully",
       category: category,

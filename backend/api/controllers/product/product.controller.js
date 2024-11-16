@@ -1,7 +1,7 @@
-import Product from "../../models/product.model.js";
-import Price from "../../models/price.model.js";
-import Offer from "../../models/offer.model.js";
-import Image from "../../models/images.model.js";
+import Product from "../../models/product/product.model.js";
+import Price from "../../models/product/price.model.js";
+import Offer from "../../models/product/offer.model.js";
+import Image from "../../models/product/images.model.js";
 import { errorHandler } from "../../utils/error.js";
 
 export const createProduct = async (req, res, next) => {

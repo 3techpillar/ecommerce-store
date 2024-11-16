@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 
-import { CategoryClient } from "./components/client";
+import { ProductClient } from "./components/client";
 import { ProductColumn } from "./components/columns";
 import api from "@/lib/axios";
 import { useParams, useRouter } from "next/navigation";
@@ -16,8 +16,17 @@ interface Store {
   currency: string;
 }
 
+interface Product {
+  _id: string;
+  thumbnail: string;
+  sku: string;
+  name: string;
+  price: number;
+  category: { _id: string; name: string };
+}
+
 const Products = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [store, setStore] = useState<Store | null>(null);
 
   const { user } = useAuthStore();
@@ -71,13 +80,13 @@ const Products = () => {
       ? formatPrice(item.price.price, store.currency)
       : item.price.price,
     category: item.category.name,
-    createdAt: format(item.createdAt, "MMMM do yyyy"),
+    categoryId: item.category._id,
   }));
 
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <CategoryClient data={formattedCategories} />
+        <ProductClient data={formattedCategories} />
       </div>
     </div>
   );

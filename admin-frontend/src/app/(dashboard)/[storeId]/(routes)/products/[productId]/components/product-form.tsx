@@ -47,7 +47,7 @@ const formSchema = z.object({
   thumbnail: z.string().min(1, "Thumbnail is required"),
   images: z.array(
     z.object({
-      url: z.string(),
+      url: z.string().min(1, "Image url is required"),
     })
   ),
   attributes: z.array(
@@ -113,7 +113,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
     defaultValues: initialData
       ? {
           ...initialData,
-          images: initialData.images,
+          images: initialData.images || [],
           offers: initialData.price?.offers || [],
         }
       : {
@@ -260,23 +260,22 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Product Images</FormLabel>
-                  <FormControl>
+                  <div className="grid grid-cols-3 gap-4">
                     <ImageUpload
                       value={field.value.map((image) => image.url)}
                       disabled={loading}
                       onChange={(url) => {
-                        field.onChange([...field.value, { url }]);
-                        console.log([...field.value, { url }]);
+                        const currentImages = field.value || [];
+                        field.onChange([...currentImages, { url }]);
                       }}
-                      onRemove={(url) =>
-                        field.onChange([
-                          ...field.value.filter(
-                            (current) => current.url !== url
-                          ),
-                        ])
-                      }
+                      onRemove={(url) => {
+                        const filteredImages = field.value.filter(
+                          (image) => image.url !== url
+                        );
+                        field.onChange(filteredImages);
+                      }}
                     />
-                  </FormControl>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

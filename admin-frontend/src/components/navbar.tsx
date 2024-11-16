@@ -76,7 +76,7 @@ const Navbar = () => {
 
             <DropdownMenuContent
               align="end"
-              className=" p-4 bg-white shadow-xl rounded-lg"
+              className="p-4 bg-white shadow-xl rounded-lg"
             >
               {/* User Info */}
               <div className="flex gap-2 p-2">
