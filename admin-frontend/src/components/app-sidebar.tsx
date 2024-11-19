@@ -13,7 +13,7 @@ import SidebarItems from "./sidebar-items";
 import SideBarFooter from "./sidebar-footer";
 
 export function AppSidebar() {
-  const { isLoggedIn, user, logout } = useAuthStore();
+  const { isLoggedIn, user } = useAuthStore();
   const router = useRouter();
 
   const [stores, setStores] = useState([]);
@@ -36,7 +36,7 @@ export function AppSidebar() {
     } else if (!isLoggedIn) {
       router.push("/sign-in");
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn, router, user]);
 
   return (
     <Sidebar collapsible="icon">

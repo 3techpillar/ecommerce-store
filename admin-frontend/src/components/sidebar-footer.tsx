@@ -49,8 +49,11 @@ const SideBarFooter = () => {
               className="w-[--radix-popper-anchor-width]"
             >
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuItem onClick={handleSignout}>
-                <span>SignOut</span>
+              <DropdownMenuItem
+                onClick={handleSignout}
+                className="cursor-pointer"
+              >
+                <span>Sign out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

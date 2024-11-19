@@ -9,6 +9,7 @@ import categoryRoutes from "./api/routes/category.route.js";
 import productRoutes from "./api/routes/product.route.js";
 import settingRoutes from "./api/routes/setting.route.js";
 import bannerRoutes from "./api/routes/banner.route.js";
+import featuredProductRoutes from "./api/routes/featuredProduct.route.js";
 
 import { API_V } from "./api/utils/constant.js";
 
@@ -48,6 +49,7 @@ app.use(`/${API_V}/setting`, settingRoutes);
 app.use(`/${API_V}/banner`, bannerRoutes);
 app.use(`/${API_V}/category`, categoryRoutes);
 app.use(`/${API_V}/product`, productRoutes);
+app.use(`/${API_V}/featured`, featuredProductRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

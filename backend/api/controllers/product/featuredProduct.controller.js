@@ -1,9 +1,13 @@
-import FeaturedSection from "../../models/product/featuredProduct.model";
-import { errorHandler } from "../../utils/error";
+import FeaturedSection from "../../models/product/featuredProduct.model.js";
+import { errorHandler } from "../../utils/error.js";
 
 export const createFeaturedProduct = async (req, res, next) => {
+  if (!req.admin) {
+    return next(errorHandler(403, "You are not allowed to create a product"));
+  }
+
   try {
-    const { title, subtitle, displayLimit, selectedProducts, isActive } =
+    const { title, subTitle, displayLimit, selectedProducts, isActive } =
       req.body;
 
     if (!title) {
@@ -14,9 +18,12 @@ export const createFeaturedProduct = async (req, res, next) => {
       return next(errorHandler(400, "Display limit must be between 1 and 12"));
     }
 
+    const { storeId } = req.params;
+
     const newSection = await FeaturedSection.create({
+      storeId,
       title,
-      subtitle,
+      subTitle,
       displayLimit,
       selectedProducts,
       isActive,
@@ -78,7 +85,8 @@ export const deleteFeaturedProduct = async (req, res, next) => {
 
 export const getAllFeaturedProducts = async (req, res, next) => {
   try {
-    const featuredProducts = await FeaturedSection.find();
+    const { storeId } = req.params;
+    const featuredProducts = await FeaturedSection.find({ storeId });
 
     if (!featuredProducts) {
       return next(errorHandler(404, "Products not found"));
@@ -110,13 +118,13 @@ export const getFeaturedProductsById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const featuredProducts = await FeaturedSection.findById(id);
+    const featuredProduct = await FeaturedSection.findById(id);
 
-    if (!featuredProducts) {
+    if (!featuredProduct) {
       return next(errorHandler(404, "Products not found"));
     }
 
-    res.status(200).json(featuredProducts);
+    res.status(200).json(featuredProduct);
   } catch (error) {
     console.log("GET_FEATURED_PRODUCTS", error);
     next(error);
