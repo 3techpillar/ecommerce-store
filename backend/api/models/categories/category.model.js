@@ -62,6 +62,11 @@ const categorySchema = new mongoose.Schema(
       ref: "Category",
       default: null,
     },
+    banner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Banner",
+      default: null,
+    },
   },
   {
     timestamps: true,

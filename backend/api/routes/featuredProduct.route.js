@@ -5,6 +5,7 @@ import {
   createFeaturedProduct,
   deleteFeaturedProduct,
   getAllFeaturedProducts,
+  getFeaturedProducts,
   getFeaturedProductsById,
   updateFeaturedProduct,
 } from "../controllers/product/featuredProduct.controller.js";
@@ -18,6 +19,7 @@ router.put("/update/:id", verifyToken, updateFeaturedProduct);
 router.delete("/delete/:id", deleteFeaturedProduct);
 
 router.get("/get-all/:storeId", getAllFeaturedProducts);
+router.get("get-active/:storeId", getFeaturedProducts);
 router.get("/get-product/:id", getFeaturedProductsById);
 
 export default router;

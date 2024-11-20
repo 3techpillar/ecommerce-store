@@ -8,7 +8,7 @@ import {
   getCategoriesByStoreId,
   getCategoryById,
   updateCategory,
-} from "../controllers/product/category.controller.js";
+} from "../controllers/category/category.controller.js";
 
 const router = express.Router();
 

@@ -1,4 +1,4 @@
-import Category from "../../models/category.model.js";
+import Category from "../../models/categories/category.model.js";
 import { errorHandler } from "../../utils/error.js";
 
 export const createCategory = async (req, res, next) => {
@@ -18,6 +18,7 @@ export const createCategory = async (req, res, next) => {
       metaDescription,
       metaKeywords,
       parentCategory,
+      banner,
     } = req.body;
 
     if (!name) {
@@ -46,6 +47,7 @@ export const createCategory = async (req, res, next) => {
       metaDescription,
       metaKeywords,
       parentCategory: parentCategory || null,
+      banner,
     });
 
     await newCategory.save();
@@ -110,6 +112,7 @@ export const updateCategory = async (req, res, next) => {
       metaDescription,
       metaKeywords,
       parentCategory,
+      banner,
     } = req.body;
 
     if (!categoryId) {
@@ -138,6 +141,7 @@ export const updateCategory = async (req, res, next) => {
           metaDescription,
           metaKeywords,
           parentCategory,
+          banner,
         },
       },
       { new: true }

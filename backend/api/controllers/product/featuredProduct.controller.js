@@ -101,7 +101,11 @@ export const getAllFeaturedProducts = async (req, res, next) => {
 
 export const getFeaturedProducts = async (req, res, next) => {
   try {
-    const featuredProducts = await FeaturedSection.find({ isActive: true });
+    const { storeId } = req.params;
+    const featuredProducts = await FeaturedSection.find({
+      storeId,
+      isActive: true,
+    });
 
     if (!featuredProducts) {
       return next(errorHandler(404, "Products not found"));

@@ -50,6 +50,7 @@ const formSchema = z.object({
   metaDescription: z.string().default(""),
   metaKeywords: z.string().default(""),
   parentCategory: z.string().nullable().optional(),
+  banner: z.string().nullable().optional(),
 });
 
 type CategoryFormValues = z.infer<typeof formSchema>;
@@ -63,6 +64,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
   const router = useRouter();
 
   const [categories, setCategories] = useState([]);
+  const [banners, setBanners] = useState([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -81,8 +83,21 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
     }
   };
 
+  console.log(banners);
+
+  const fetchBanners = async () => {
+    try {
+      const response = await api.get(`/v1/banner/all/${params.storeId}`);
+
+      setBanners(response.data.banners);
+    } catch (error) {
+      console.log("Error while fetching banners", error);
+    }
+  };
+
   useEffect(() => {
     fetchCategories();
+    fetchBanners();
   }, []);
 
   const title = initialData ? "Edit Category" : "Create Category";
@@ -106,6 +121,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
       metaDescription: "",
       metaKeywords: "",
       parentCategory: null,
+      banner: null,
     },
   });
 
@@ -320,7 +336,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
               name="parentCategory"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Parent Category ID</FormLabel>
+                  <FormLabel>Select Parent Category</FormLabel>
                   <FormControl>
                     <Select
                       onValueChange={(value) => field.onChange(value)}
@@ -333,6 +349,33 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData }) => {
                         {categories.map((category) => (
                           <SelectItem key={category._id} value={category._id}>
                             {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="banner"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select banner</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={(value) => field.onChange(value)}
+                      defaultValue={field.value || ""}
+                    >
+                      <SelectTrigger disabled={loading}>
+                        <SelectValue placeholder="Select banner" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {banners.map((banner) => (
+                          <SelectItem key={banner._id} value={banner._id}>
+                            {banner.title}
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -40,7 +40,7 @@ const bannerSchema = new mongoose.Schema(
     bannerPosition: {
       type: String,
       enum: ["hero", "second", "third"],
-      default: "hero",
+      default: null,
     },
     displayOrder: {
       type: Number,

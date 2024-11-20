@@ -29,7 +29,7 @@ export const signup = async (req, res, next) => {
     await newAdmin.save();
 
     const token = jwt.sign({ id: newAdmin._id }, process.env.JWT_SECRET, {
-      expiresIn: "180d",
+      expiresIn: "30d",
     });
 
     const { password: pass, ...user } = newAdmin._doc;
@@ -69,7 +69,7 @@ export const signin = async (req, res, next) => {
     }
 
     const token = jwt.sign({ id: validAdmin._id }, process.env.JWT_SECRET, {
-      expiresIn: "180d",
+      expiresIn: "30d",
     });
 
     const { password: pass, ...user } = validAdmin._doc;
