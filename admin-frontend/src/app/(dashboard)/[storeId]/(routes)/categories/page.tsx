@@ -7,9 +7,12 @@ import { CategoryClient } from "./components/client";
 import { CategoryColumn } from "./components/columns";
 import api from "@/lib/axios";
 import { useParams } from "next/navigation";
+import { SpecialClient } from "./components/specialClient";
+import { SpecialCategoryColumn } from "./components/specialColumn";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
+  const [specialCategory, setSpecialCategory] = useState([]);
   const params = useParams();
 
   const fetchCategories = async () => {
@@ -17,7 +20,6 @@ const Categories = () => {
       const response = await api.get(
         `/v1/category/get-category-by-storeId/${params.storeId}`
       );
-      console.log("fetch categories:", response.data.categories);
 
       setCategories(response.data.categories);
     } catch (error) {
@@ -25,8 +27,22 @@ const Categories = () => {
     }
   };
 
+  const fetchSpecialCategory = async () => {
+    try {
+      const response = await api.get(
+        `/v1/special-category/get-all/${params.storeId}`
+      );
+      console.log("fetch categories:", response.data.specialCategories);
+
+      setSpecialCategory(response.data);
+    } catch (error) {
+      console.log("Error while fetching special category", error);
+    }
+  };
+
   useEffect(() => {
     fetchCategories();
+    fetchSpecialCategory();
   }, []);
 
   const formattedCategories: CategoryColumn[] = categories.map((item) => ({
@@ -36,9 +52,18 @@ const Categories = () => {
     createdAt: format(item.createdAt, "MMMM do yyyy"),
   }));
 
+  const formattedSpecialCategories: SpecialCategoryColumn[] =
+    specialCategory.map((item) => ({
+      id: item._id,
+      title: item.title,
+      subTitle: item.subTitle,
+      isActive: item.isActive,
+    }));
+
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
+        <SpecialClient data={formattedSpecialCategories} />
         <CategoryClient data={formattedCategories} />
       </div>
     </div>
