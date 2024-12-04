@@ -50,9 +50,7 @@ export const SpecialCategoryForm: React.FC<CategoryFormProps> = ({
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get(
-        `/v1/product/get-products/${params.storeId}`
-      );
+      const response = await api.get(`/v1/product/${params.storeId}`);
 
       const mappedProducts = response.data.map((product) => ({
         value: product._id,

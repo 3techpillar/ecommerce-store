@@ -63,6 +63,7 @@ const formSchema = z.object({
   }),
   offers: z.array(offerSchema),
   stock: z.number().min(0, "Stock cannot be negative"),
+  is_instock: z.boolean(),
   is_manage_stock: z.boolean(),
   seo: z.object({
     title: z.string().optional(),
@@ -129,6 +130,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
           price: { price: 0 },
           offers: [],
           stock: 0,
+          is_instock: true,
           is_manage_stock: true,
           seo: { title: "", description: "", keywords: "" },
         },
@@ -235,7 +237,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 w-full"
         >
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-8">
             <FormField
               control={form.control}
               name="thumbnail"
@@ -260,7 +262,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Product Images</FormLabel>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-4 gap-4">
                     <ImageUpload
                       value={field.value.map((image) => image.url)}
                       disabled={loading}
@@ -413,6 +415,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="is_instock"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">In Stock</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={loading}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { format } from "date-fns";
 
 import { ProductClient } from "./components/client";
 import { ProductColumn } from "./components/columns";
@@ -57,9 +56,7 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get(
-        `/v1/product/get-products/${params.storeId}`
-      );
+      const response = await api.get(`/v1/product/${params.storeId}`);
 
       setProducts(response.data);
     } catch (error) {

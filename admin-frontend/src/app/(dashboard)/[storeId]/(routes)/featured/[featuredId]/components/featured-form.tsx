@@ -52,9 +52,7 @@ export const FeaturedProductForm: React.FC<ProductFormProps> = ({
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get(
-        `/v1/product/get-products/${params.storeId}`
-      );
+      const response = await api.get(`/v1/product/${params.storeId}`);
 
       const mappedProducts = response.data.map((product) => ({
         value: product._id,
@@ -70,7 +68,7 @@ export const FeaturedProductForm: React.FC<ProductFormProps> = ({
 
   useEffect(() => {
     fetchProducts();
-  }, [params.storeId]); // Add dependency to reload when storeId changes
+  }, [params.storeId]);
 
   const title = initialData
     ? "Edit Featured Product"

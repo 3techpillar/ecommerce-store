@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
 import Product from "../../models/product/product.model.js";
 import Price from "../../models/product/price.model.js";
 import Offer from "../../models/product/offer.model.js";
 import Image from "../../models/product/images.model.js";
+import Category from "../../models/categories/category.model.js";
 import { errorHandler } from "../../utils/error.js";
 
 export const createProduct = async (req, res, next) => {
@@ -127,18 +129,17 @@ export const updateProduct = async (req, res, next) => {
     price,
     offers,
     stock,
+    is_instock,
     is_manage_stock,
     seo,
   } = req.body;
 
   try {
-    // Find existing product
     const existingProduct = await Product.findById(productId);
     if (!existingProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Update basic product fields
     const updatedFields = {
       sku,
       name,
@@ -149,7 +150,7 @@ export const updateProduct = async (req, res, next) => {
       category,
       description,
       stock,
-      is_instock: stock > 0,
+      is_instock,
       is_manage_stock,
       seo: {
         title: seo?.title || null,
@@ -272,10 +273,9 @@ export const deleteProduct = async (req, res, next) => {
   }
 };
 
-export const getAllProduct = async (req, res, next) => {
+export const getAllProducts = async (req, res, next) => {
   try {
     const { storeId } = req.params;
-
     const products = await Product.find({ storeId })
       .populate({
         path: "price",
@@ -284,17 +284,161 @@ export const getAllProduct = async (req, res, next) => {
         },
       })
       .populate("category");
-
     if (!products || products.length === 0) {
       return res.status(404).json({ message: "No products found" });
     }
-
     res.status(200).json(products);
   } catch (error) {
     console.error("Error fetching product:", error);
     res
       .status(500)
       .json({ message: "Error fetching product", error: error.message });
+  }
+};
+
+export const getProducts = async (req, res, next) => {
+  try {
+    const { storeId } = req.params;
+    if (!storeId) {
+      return res.status(400).json({ message: "Store ID is required" });
+    }
+
+    const {
+      category,
+      brand,
+      minPrice,
+      maxPrice,
+      sort = "desc",
+      limit = 10,
+      page = 1,
+      search,
+    } = req.query;
+
+    // Base filter with storeId
+    const filter = { storeId: new mongoose.Types.ObjectId(storeId) };
+
+    // search filter
+    if (search) {
+      const searchRegex = new RegExp(search, "i");
+      filter.$or = [
+        { name: searchRegex },
+        { description: searchRegex },
+        { sku: searchRegex },
+        { "seo.title": searchRegex },
+        { "seo.description": searchRegex },
+        { "seo.keywords": searchRegex },
+      ];
+    }
+
+    // Category filter
+    if (category) {
+      const categoryDoc = await Category.findOne({
+        storeId: storeId,
+        name: { $regex: new RegExp(category, "i") },
+      });
+      if (categoryDoc) {
+        filter.category = categoryDoc._id;
+      }
+    }
+
+    // Brand filter
+    if (brand) {
+      filter.brand = { $regex: new RegExp(brand, "i") };
+    }
+
+    // Sort configuration
+    const sortOrder = sort === "asc" ? 1 : -1;
+    const sortOption = { "priceData.price": sortOrder };
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    // Aggregate pipeline
+    const aggregatePipeline = [
+      {
+        $match: filter,
+      },
+      {
+        $lookup: {
+          from: "prices",
+          localField: "price",
+          foreignField: "_id",
+          as: "priceData",
+        },
+      },
+      {
+        $unwind: "$priceData",
+      },
+      // Price range filter
+      ...(minPrice || maxPrice
+        ? [
+            {
+              $match: {
+                "priceData.price": {
+                  ...(minPrice && { $gte: Number(minPrice) }),
+                  ...(maxPrice && { $lte: Number(maxPrice) }),
+                },
+              },
+            },
+          ]
+        : []),
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "categoryData",
+        },
+      },
+      {
+        $unwind: "$categoryData",
+      },
+      {
+        $lookup: {
+          from: "offers",
+          localField: "priceData.offers",
+          foreignField: "_id",
+          as: "priceData.offers",
+        },
+      },
+      {
+        $sort: sortOption,
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: Number(limit),
+      },
+    ];
+
+    // Execute aggregation
+    const products = await Product.aggregate(aggregatePipeline);
+
+    // Get total count for this store
+    const totalProducts = await Product.countDocuments(filter);
+
+    if (!products || products.length === 0) {
+      return res.status(404).json({
+        message: "No products found for this store",
+        currentPage: Number(page),
+        totalPages: 0,
+        totalProducts: 0,
+        products: [],
+      });
+    }
+
+    res.status(200).json({
+      products,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalProducts / Number(limit)),
+      totalProducts,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({
+      message: "Error fetching products",
+      error: error.message,
+    });
   }
 };
 
