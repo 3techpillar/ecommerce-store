@@ -4,12 +4,18 @@ import Product from "../models/product/product.model.js";
 import { errorHandler } from "../utils/error.js";
 
 const populateCart = async (cartId) => {
-  return Cart.findById(cartId).populate({
-    path: "items.product",
-    populate: {
-      path: "price",
+  return Cart.findById(cartId).populate([
+    {
+      path: "items.product",
+      populate: {
+        path: "price",
+      },
     },
-  });
+    {
+      path: "appliedCoupon",
+      select: "code discount discountType minPrice expires isActive",
+    },
+  ]);
 };
 
 export const addToCart = async (req, res, next) => {
@@ -119,7 +125,7 @@ export const applyCoupon = async (req, res, next) => {
 
     const coupon = await Coupon.findOne({ code: couponCode });
     if (!coupon) {
-      return next(errorHandler(404, "Invalid coupon code"));
+      return next(errorHandler(400, "Invalid coupon code"));
     }
 
     if (!coupon.isActive) {
@@ -139,15 +145,22 @@ export const applyCoupon = async (req, res, next) => {
       );
     }
 
-    const couponDiscountAmount =
-      (cart.totalPriceAfterDiscount * coupon.discount) / 100;
+    let couponDiscountAmount = 0;
+    if (coupon.discountType === "percentage") {
+      couponDiscountAmount = Math.round(
+        (cart.totalPriceAfterDiscount * coupon.discount) / 100
+      );
+    } else if (coupon.discountType === "flat") {
+      couponDiscountAmount = coupon.discount;
+    }
+
     cart.appliedCoupon = coupon._id;
     cart.couponDiscountAmount = couponDiscountAmount;
     cart.netPrice = cart.totalPrice - cart.discount - couponDiscountAmount;
 
     await cart.save();
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       message: "Coupon applied successfully",
       cart: await populateCart(cart._id),
@@ -174,7 +187,7 @@ export const removeCoupon = async (req, res, next) => {
 
     await cart.save();
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       message: "Coupon removed successfully",
       cart: await populateCart(cart._id),
@@ -237,16 +250,34 @@ export const removeFromCart = async (req, res, next) => {
       cart.discount = totals.totalDiscount;
 
       if (cart.appliedCoupon) {
-        const couponDiscountAmount =
-          (cart.totalPriceAfterDiscount * cart.appliedCoupon.discount) / 100;
-        cart.couponDiscountAmount = couponDiscountAmount;
-        cart.totalPriceAfterDiscount =
-          cart.totalPrice - cart.discount - couponDiscountAmount;
-        cart.netPrice = cart.totalPriceAfterDiscount;
+        const coupon = await Coupon.findById(cart.appliedCoupon);
+
+        if (
+          !coupon ||
+          !coupon.isActive ||
+          coupon.expires < new Date() ||
+          cart.totalPrice - cart.discount < coupon.minPrice
+        ) {
+          cart.appliedCoupon = null;
+          cart.couponDiscountAmount = 0;
+        } else {
+          const couponDiscountAmount =
+            coupon.discountType === "percentage"
+              ? (cart.totalPriceAfterDiscount * coupon.discount) / 100
+              : coupon.discount;
+
+          cart.couponDiscountAmount = Math.min(
+            couponDiscountAmount,
+            cart.totalPrice - cart.discount
+          );
+        }
       } else {
-        cart.totalPriceAfterDiscount = cart.totalPrice - cart.discount;
-        cart.netPrice = cart.totalPriceAfterDiscount;
+        cart.couponDiscountAmount = 0;
       }
+
+      cart.totalPriceAfterDiscount =
+        cart.totalPrice - cart.discount - cart.couponDiscountAmount;
+      cart.netPrice = cart.totalPriceAfterDiscount;
     } else {
       cart.totalPrice = 0;
       cart.discount = 0;
@@ -260,7 +291,7 @@ export const removeFromCart = async (req, res, next) => {
 
     const updatedCart = await populateCart(cart._id);
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       message: "Product removed from cart successfully",
       cart: updatedCart,
@@ -287,7 +318,11 @@ export const getCart = async (req, res, next) => {
       return next(errorHandler(404, "Cart not found"));
     }
 
-    res.status(200).json({ success: true, cart });
+    return res.status(201).json({
+      success: true,
+      message: "Cart fetched successfully",
+      cart: await populateCart(cart._id),
+    });
   } catch (error) {
     console.error("GET_GETCART", error);
     next(error);
@@ -314,7 +349,7 @@ export const clearCart = async (req, res, next) => {
 
     await cart.save();
 
-    res.status(200).json({ success: true, message: "Your cart is cleared" });
+    res.status(201).json({ success: true, message: "Your cart is cleared" });
   } catch (error) {
     console.error("DELETE_CLEARCART", error);
     next(error);

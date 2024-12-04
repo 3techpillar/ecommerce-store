@@ -64,11 +64,11 @@ const SidebarItems = () => {
       href: `/${params.storeId}/products`,
       icon: <Package size={18} />,
     },
-    // {
-    //   title: "Coupons",
-    //   href: `/${params.storeId}/coupon`,
-    //   icon: <TicketCheck size={18} />,
-    // },
+    {
+      title: "Coupons",
+      href: `/${params.storeId}/coupon`,
+      icon: <TicketCheck size={18} />,
+    },
     {
       title: "Settings",
       href: `/${params.storeId}/settings`,
