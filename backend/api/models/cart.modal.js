@@ -7,6 +7,11 @@ const cartSchema = new Schema(
       ref: "User",
       required: true,
     },
+    storeId: {
+      type: Schema.Types.ObjectId,
+      ref: "Store",
+      required: true,
+    },
     items: [
       {
         product: {
@@ -19,8 +24,18 @@ const cartSchema = new Schema(
           required: true,
           min: 1,
         },
-        price: Number,
-        totalProductDiscount: Number,
+        price: {
+          type: Number,
+          required: true,
+        },
+        totalProductDiscount: {
+          type: Number,
+          default: 0,
+        },
+        totalPrice: {
+          type: Number,
+          default: 0,
+        },
       },
     ],
     totalPrice: {
@@ -48,6 +63,15 @@ const cartSchema = new Schema(
     netPrice: {
       type: Number,
       default: 0,
+    },
+    shippingAddress: {
+      type: Schema.Types.ObjectId,
+      ref: "Address",
+      default: null,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
   { timestamps: true }

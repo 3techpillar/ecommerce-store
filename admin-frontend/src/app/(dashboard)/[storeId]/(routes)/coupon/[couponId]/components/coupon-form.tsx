@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Trash } from "lucide-react";
+import { format } from "date-fns";
 
 import api from "@/lib/axios";
 import { Button } from "@/components/ui/button";
@@ -63,6 +64,9 @@ export const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
     defaultValues: initialData
       ? {
           ...initialData,
+          expires: initialData.expires
+            ? format(new Date(initialData.expires), "yyyy-MM-dd'T'HH:mm")
+            : "",
         }
       : {
           code: "",
@@ -166,6 +170,7 @@ export const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
                   <FormLabel>Expiry</FormLabel>
                   <FormControl>
                     <Input
+                      type="datetime-local"
                       disabled={loading}
                       placeholder="Coupon expiry"
                       {...field}

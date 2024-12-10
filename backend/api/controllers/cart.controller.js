@@ -1,10 +1,15 @@
 import Cart from "../models/cart.modal.js";
 import Coupon from "../models/coupon.model.js";
 import Product from "../models/product/product.model.js";
+import Address from "../models/user/address.modal.js";
 import { errorHandler } from "../utils/error.js";
 
 const populateCart = async (cartId) => {
   return Cart.findById(cartId).populate([
+    {
+      path: "user",
+      select: "name email addresses phone",
+    },
     {
       path: "items.product",
       populate: {
@@ -15,11 +20,16 @@ const populateCart = async (cartId) => {
       path: "appliedCoupon",
       select: "code discount discountType minPrice expires isActive",
     },
+    {
+      path: "shippingAddress",
+      select: "street city state country zipCode",
+    },
   ]);
 };
 
 export const addToCart = async (req, res, next) => {
   try {
+    const { storeId } = req.params;
     const { userId, productId, quantity } = req.body;
 
     if (!userId || !productId || !quantity) {
@@ -45,36 +55,34 @@ export const addToCart = async (req, res, next) => {
 
     const { price = 0, discounted_price = price } = product.price;
 
-    let cart = await Cart.findOne({ user: userId }).populate({
-      path: "items.product",
-      populate: {
-        path: "price",
-      },
-    });
+    let cart = await Cart.findOne({ user: userId, isActive: true });
 
     if (!cart) {
       cart = new Cart({
         user: userId,
+        storeId,
         items: [],
         totalPrice: 0,
         discount: 0,
         totalPriceAfterDiscount: 0,
         netPrice: 0,
+        isActive: true,
       });
     }
 
     const existingItemIndex = cart.items.findIndex(
-      (item) => item.product._id.toString() === productId
+      (item) => item.product.toString() === productId
     );
 
     if (existingItemIndex > -1) {
       const updatedQuantity = cart.items[existingItemIndex].quantity + quantity;
 
       cart.items[existingItemIndex] = {
-        ...cart.items[existingItemIndex],
+        product: productId,
         quantity: updatedQuantity,
         price: discounted_price,
         totalProductDiscount: (price - discounted_price) * updatedQuantity,
+        totalPrice: discounted_price * updatedQuantity,
       };
     } else {
       cart.items.push({
@@ -82,6 +90,7 @@ export const addToCart = async (req, res, next) => {
         quantity,
         price: discounted_price,
         totalProductDiscount: (price - discounted_price) * quantity,
+        totalPrice: discounted_price * quantity,
       });
     }
 
@@ -94,15 +103,17 @@ export const addToCart = async (req, res, next) => {
     );
 
     cart.totalPrice = totals.totalPrice;
-    cart.discount = totals.totalDiscount;
+    cart.discount = Math.floor(totals.totalDiscount);
     cart.totalPriceAfterDiscount = cart.totalPrice - cart.discount;
     cart.netPrice = cart.totalPriceAfterDiscount;
 
     await cart.save();
 
+    const populatedCart = await populateCart(cart._id);
+
     return res.status(201).json({
       success: true,
-      cart: await populateCart(cart._id),
+      cart: populatedCart,
     });
   } catch (error) {
     console.error("POST_ADDTOCART_ERROR", error);
@@ -118,7 +129,7 @@ export const applyCoupon = async (req, res, next) => {
       return next(errorHandler(400, "User ID and coupon code are required"));
     }
 
-    const cart = await Cart.findOne({ user: userId });
+    const cart = await Cart.findOne({ user: userId, isActive: true });
     if (!cart) {
       return next(errorHandler(404, "Cart not found"));
     }
@@ -175,7 +186,7 @@ export const removeCoupon = async (req, res, next) => {
   try {
     const { userId } = req.body;
 
-    const cart = await Cart.findOne({ user: userId });
+    const cart = await Cart.findOne({ user: userId, isActive: true });
     if (!cart) {
       return next(errorHandler(404, "Cart not found"));
     }
@@ -208,7 +219,7 @@ export const removeFromCart = async (req, res, next) => {
       );
     }
 
-    const cart = await Cart.findOne({ user: userId }).populate({
+    const cart = await Cart.findOne({ user: userId, isActive: true }).populate({
       path: "items.product",
       populate: {
         path: "price",
@@ -306,7 +317,7 @@ export const getCart = async (req, res, next) => {
   try {
     const { userId } = req.params;
 
-    const cart = await Cart.findOne({ user: userId }).populate({
+    const cart = await Cart.findOne({ user: userId, isActive: true }).populate({
       path: "items.product",
       populate: {
         path: "price",
@@ -333,7 +344,7 @@ export const clearCart = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
-    const cart = await Cart.findOne({ user: userId });
+    const cart = await Cart.findOne({ user: userId, isActive: true });
 
     if (!cart) {
       return next(errorHandler(404, "Cart not found"));
@@ -352,6 +363,93 @@ export const clearCart = async (req, res, next) => {
     res.status(201).json({ success: true, message: "Your cart is cleared" });
   } catch (error) {
     console.error("DELETE_CLEARCART", error);
+    next(error);
+  }
+};
+
+export const updateCartShippingAddress = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { addressId, shippingAddress } = req.body;
+
+    const cart = await Cart.findOne({ user: userId, isActive: true });
+    if (!cart) {
+      return next(errorHandler(404, "Cart not found"));
+    }
+
+    let savedAddress;
+
+    if (addressId) {
+      savedAddress = await Address.findOne({ _id: addressId, user: userId });
+      if (!savedAddress) {
+        return next(errorHandler(404, "Billing address not found"));
+      }
+    } else if (shippingAddress) {
+      const newAddress = new Address({
+        ...shippingAddress,
+        user: userId,
+      });
+      savedAddress = await newAddress.save();
+    } else {
+      return next(errorHandler(400, "Shipping address is required"));
+    }
+
+    cart.shippingAddress = savedAddress._id;
+
+    await cart.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Shipping address updated in the cart",
+      cart: await populateCart(cart._id),
+    });
+  } catch (error) {
+    console.log("UPDATE_CART_SHIPPING_ADDRESS_ERROR", error);
+    next(error);
+  }
+};
+
+export const getallCart = async (req, res, next) => {
+  try {
+    const { storeId } = req.params;
+
+    const carts = await Cart.find({ storeId, isActive: true }).populate([
+      {
+        path: "user",
+        select: "name email addresses phone",
+      },
+      {
+        path: "items.product",
+        populate: {
+          path: "price",
+          select: "price discounted_price total_discount",
+        },
+      },
+      {
+        path: "appliedCoupon",
+        select: "code discount discountType minPrice expires isActive",
+      },
+      {
+        path: "shippingAddress",
+        select: "street city state country zipCode",
+      },
+    ]);
+
+    const filteredCarts = carts.filter(
+      (cart) => cart.items && cart.items.length > 0
+    );
+
+    if (!filteredCarts || filteredCarts.length === 0) {
+      return next(errorHandler(404, "No carts with item found"));
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Carts fetched successfully",
+      filteredCarts,
+    });
+  } catch (error) {
+    console.error("GET_GET_ALL_CART", error);
     next(error);
   }
 };

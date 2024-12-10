@@ -8,11 +8,13 @@ import {
   Image as LucideImg,
   Network,
   Package,
-  Package2,
   TicketCheck,
   Settings,
   ChevronDown,
   LayoutTemplate,
+  Truck,
+  ShoppingCart,
+  Feather,
 } from "lucide-react";
 
 import {
@@ -50,7 +52,7 @@ const SidebarItems = () => {
         {
           title: "Featured Products",
           href: `/${params.storeId}/featured`,
-          icon: <Package2 size={18} />,
+          icon: <Feather size={18} />,
         },
       ],
     },
@@ -68,6 +70,16 @@ const SidebarItems = () => {
       title: "Coupons",
       href: `/${params.storeId}/coupon`,
       icon: <TicketCheck size={18} />,
+    },
+    {
+      title: "Orders",
+      href: `/${params.storeId}/orders`,
+      icon: <Truck size={18} />,
+    },
+    {
+      title: "Carts",
+      href: `/${params.storeId}/carts`,
+      icon: <ShoppingCart size={18} />,
     },
     {
       title: "Settings",
