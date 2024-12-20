@@ -51,12 +51,11 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    images: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Image",
-      },
-    ],
+    images: {
+      type: [String],
+      required: true,
+      default: [],
+    },
     attributes: {
       type: [attributeSchema],
       default: [],

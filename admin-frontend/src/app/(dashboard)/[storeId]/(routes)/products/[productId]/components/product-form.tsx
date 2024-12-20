@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import ImageUpload from "@/components/ui/image-upload";
 import { Textarea } from "@/components/ui/textarea";
+import ProductImageUpload from "@/components/ui/product-image-upload";
 
 const offerSchema = z.object({
   offer_type: z.enum(["flat", "percentage"]),
@@ -45,11 +46,7 @@ const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
   product_type: z.enum(["simple", "variable"]),
   thumbnail: z.string().min(1, "Thumbnail is required"),
-  images: z.array(
-    z.object({
-      url: z.string().min(1, "Image url is required"),
-    })
-  ),
+  images: z.array(z.string().min(1, "Image URL is required")),
   attributes: z.array(
     z.object({
       key: z.string().min(1, "Attribute key is required"),
@@ -168,7 +165,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
       const formData = {
         ...values,
         storeId: params.storeId,
-        images: values.images.map((image) => image.url),
         is_instock: values.stock > 0,
       };
 
@@ -262,22 +258,21 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Product Images</FormLabel>
-                  <div className="grid grid-cols-4 gap-4">
-                    <ImageUpload
-                      value={field.value.map((image) => image.url)}
+                  <FormControl>
+                    <ProductImageUpload
+                      value={field.value || []}
                       disabled={loading}
-                      onChange={(url) => {
-                        const currentImages = field.value || [];
-                        field.onChange([...currentImages, { url }]);
+                      onChange={(updatedImages) => {
+                        field.onChange(updatedImages);
                       }}
                       onRemove={(url) => {
-                        const filteredImages = field.value.filter(
-                          (image) => image.url !== url
+                        const filteredImages = (field.value || []).filter(
+                          (image) => image !== url
                         );
                         field.onChange(filteredImages);
                       }}
                     />
-                  </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

@@ -133,7 +133,9 @@ export const getAllBanner = async (req, res, next) => {
 
 export const getBanners = async (req, res, next) => {
   try {
-    const banner = await Banner.find({ isVisible: true });
+    const { storeId } = req.params;
+
+    const banner = await Banner.find({ storeId, isVisible: true });
 
     if (banner.length === 0) {
       return next(errorHandler(404, "Banner not found"));

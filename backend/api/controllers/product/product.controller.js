@@ -70,7 +70,7 @@ export const createProduct = async (req, res, next) => {
       slug: createSlug,
       product_type,
       thumbnail,
-      images: [],
+      images: images || [],
       attributes,
       brand,
       category,
@@ -86,20 +86,7 @@ export const createProduct = async (req, res, next) => {
       },
     });
 
-    if (images && images.length > 0) {
-      const imageIds = await Promise.all(
-        images.map(async (imageUrl) => {
-          const newImage = await Image.create({
-            productId: newProduct._id,
-            url: imageUrl,
-          });
-          return newImage._id;
-        })
-      );
-
-      newProduct.images = imageIds;
-      await newProduct.save();
-    }
+    await newProduct.save();
 
     res.status(201).json(newProduct);
   } catch (error) {
@@ -204,18 +191,6 @@ export const updateProduct = async (req, res, next) => {
     );
 
     updatedFields.price = updatedPrice._id;
-
-    // Update images if provided
-    if (images && images.length > 0) {
-      await Image.deleteMany({ productId });
-      const imageDocs = await Promise.all(
-        images.map(async (url) => {
-          const image = await Image.create({ productId, url });
-          return image._id;
-        })
-      );
-      updatedFields.images = imageDocs;
-    }
 
     // Update product document
     const updatedProduct = await Product.findByIdAndUpdate(

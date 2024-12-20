@@ -10,12 +10,13 @@ import {
 
 const router = express.Router();
 
-router.get("/visible", getBanners);
-router.get("/all/:storeId", getAllBanner);
+//user
+router.get("/visible/:storeId", getBanners);
 router.get("/:bannerId", getBannerById);
 
+//admin
+router.get("/all/:storeId", getAllBanner);
 router.post("/create/:storeId", createBanner);
-
 router.put("/update/:bannerId", updateBanner);
 router.delete("/delete/:bannerId", deleteBanner);
 

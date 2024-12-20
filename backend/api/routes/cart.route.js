@@ -12,8 +12,9 @@ import {
 
 const router = express.Router();
 
-router.get("/get-by-store/:storeId", getallCart);
-router.get("/get-by-userId/:userId", getCart);
+router.get("/get-by-store/:storeId", getallCart); //admin
+
+router.get("/get-by-userId/:userId", getCart); //admin
 router.post("/:storeId", addToCart);
 router.delete("/:userId/:productId", removeFromCart);
 router.delete("/:userId", clearCart);

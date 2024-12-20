@@ -1,5 +1,4 @@
 "use client";
-import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
 import {
@@ -15,26 +14,7 @@ interface CartFormProps {
   initialData: any;
 }
 
-const Para = ({ title, value }) => {
-  return (
-    <div className="flex items-center justify-between mb-3">
-      <p className="text-base font-semibold">{title}</p>
-      <p className="text-sm text-gray-600">{value}</p>
-    </div>
-  );
-};
-
 export const CartForm: React.FC<CartFormProps> = ({ initialData }) => {
-  console.log(initialData);
-
-  const renderAddress = (address: any) => {
-    if (!address?.street) return null;
-
-    return (
-      <div className="text-base text-gray-600">{`${address.street}, ${address.city}, ${address.state}, ${address.country}, ${address.zipCode}`}</div>
-    );
-  };
-
   return (
     <>
       <div className="flex items-center justify-between">
