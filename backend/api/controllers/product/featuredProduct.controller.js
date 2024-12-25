@@ -105,6 +105,11 @@ export const getFeaturedProducts = async (req, res, next) => {
     const featuredProducts = await FeaturedSection.find({
       storeId,
       isActive: true,
+    }).populate({
+      path: "selectedProducts",
+      populate: {
+        path: "price",
+      },
     });
 
     if (!featuredProducts) {

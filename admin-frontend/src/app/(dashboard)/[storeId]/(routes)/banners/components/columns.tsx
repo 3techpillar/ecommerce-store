@@ -6,8 +6,7 @@ import Image from "next/image";
 
 export type BannerColumn = {
   id: string;
-  url: string;
-  altText: string;
+  image: string;
   title: string;
   bannerPosition: string;
   isVisible: boolean;
@@ -19,8 +18,8 @@ export const columns: ColumnDef<BannerColumn>[] = [
     cell: ({ row }) => (
       <div className="relative w-8 h-8">
         <Image
-          src={row.original.url}
-          alt={row.original.altText}
+          src={row.original.image}
+          alt={row.original.title}
           fill
           className="object-cover rounded-md"
         />

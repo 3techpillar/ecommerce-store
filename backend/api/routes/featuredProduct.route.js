@@ -19,7 +19,7 @@ router.put("/update/:id", verifyToken, updateFeaturedProduct);
 router.delete("/delete/:id", deleteFeaturedProduct);
 
 router.get("/get-all/:storeId", getAllFeaturedProducts);
-router.get("get-active/:storeId", getFeaturedProducts);
+router.get("/:storeId/get-active", getFeaturedProducts);
 router.get("/get-product/:id", getFeaturedProductsById);
 
 export default router;

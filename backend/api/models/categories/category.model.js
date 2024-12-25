@@ -33,6 +33,10 @@ const categorySchema = new mongoose.Schema(
     icon: {
       type: String,
     },
+    slug: {
+      type: String,
+      default: null,
+    },
     isActive: {
       type: Boolean,
       default: true,

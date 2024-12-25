@@ -15,20 +15,10 @@ const bannerSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    images: [
-      {
-        url: {
-          type: String,
-          required: true,
-        },
-        altText: {
-          type: String,
-        },
-      },
-      {
-        _id: false,
-      },
-    ],
+    image: {
+      type: String,
+      default: null,
+    },
     buttonText: {
       type: String,
       default: "Learn More",

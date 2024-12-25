@@ -28,8 +28,7 @@ const Banner = () => {
 
   const formattedBanners: BannerColumn[] = banners.map((item) => ({
     id: item._id,
-    url: item.images[0].url,
-    altText: item.images[0].altText,
+    image: item.image,
     title: item.title,
     bannerPosition: item.bannerPosition,
     isVisible: item.isVisible,

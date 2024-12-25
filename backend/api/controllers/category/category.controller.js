@@ -35,11 +35,30 @@ export const createCategory = async (req, res, next) => {
 
     const { storeId } = req.params;
 
+    let slug;
+    if (parentCategory) {
+      const parentCat = await Category.findById(parentCategory);
+      slug = `${parentCat.slug}/${name
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")}`;
+    } else {
+      slug = name
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-");
+    }
+
     const newCategory = new Category({
       storeId,
       name,
       description,
       icon,
+      slug,
       isActive,
       position,
       attributes,
@@ -119,6 +138,11 @@ export const updateCategory = async (req, res, next) => {
       return next(errorHandler(400, "Category ID is required"));
     }
 
+    const existingCategory = await Category.findById(categoryId);
+    if (!existingCategory) {
+      return next(errorHandler(404, "Category not found"));
+    }
+
     if (parentCategory) {
       const parent = await Category.findById(parentCategory);
 
@@ -127,23 +151,43 @@ export const updateCategory = async (req, res, next) => {
       }
     }
 
+    const updateData = {
+      description,
+      icon,
+      isActive,
+      position,
+      attributes,
+      metaTitle,
+      metaDescription,
+      metaKeywords,
+      parentCategory,
+      banner,
+    };
+
+    if (name && name !== existingCategory.name) {
+      updateData.name = name;
+
+      if (parentCategory) {
+        const parentCat = await Category.findById(parentCategory);
+        updateData.slug = `${parentCat.slug}/${name
+          .toLowerCase()
+          .trim()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")}`;
+      } else {
+        updateData.slug = name
+          .toLowerCase()
+          .trim()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-");
+      }
+    }
+
     const updatedCategory = await Category.findByIdAndUpdate(
       categoryId,
-      {
-        $set: {
-          name,
-          description,
-          icon,
-          isActive,
-          position,
-          attributes,
-          metaTitle,
-          metaDescription,
-          metaKeywords,
-          parentCategory,
-          banner,
-        },
-      },
+      { $set: updateData },
       { new: true }
     );
 
@@ -197,12 +241,14 @@ export const deleteCategory = async (req, res, next) => {
 };
 
 export const getAllCategories = async (req, res, next) => {
-  if (!req.admin) {
-    return next(errorHandler(403, "You are not allowed to create a category"));
-  }
+  const { storeId } = req.params;
 
   try {
-    const topLevelCategory = await Category.find({ parentCategory: null });
+    const topLevelCategory = await Category.find({
+      storeId,
+      isActive: true,
+      parentCategory: null,
+    });
 
     const categoriesWithChildren = await Promise.all(
       topLevelCategory.map(async (category) => ({
@@ -224,6 +270,18 @@ export const getCategoriesByStoreId = async (req, res, next) => {
   try {
     const { storeId } = req.params;
     const categories = await Category.find({ storeId });
+
+    res.status(200).json({ categories });
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    next(error);
+  }
+};
+
+export const getActiveCategories = async (req, res, next) => {
+  try {
+    const { storeId } = req.params;
+    const categories = await Category.find({ storeId, isActive: true });
 
     res.status(200).json({ categories });
   } catch (error) {

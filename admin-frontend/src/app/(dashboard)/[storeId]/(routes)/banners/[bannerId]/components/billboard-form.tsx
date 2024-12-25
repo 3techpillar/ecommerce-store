@@ -35,18 +35,8 @@ import ImageUpload from "@/components/ui/image-upload";
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   subTitle: z.string().nullable().optional(),
-  images: z
-    .array(
-      z.object({
-        url: z
-          .string()
-          .url("Image URL must be a valid URL")
-          .min(1, "Image URL is required"),
-        altText: z.string().optional(),
-      })
-    )
-    .min(1, "At least one image is required"),
-  buttonText: z.string().default("Learn More"),
+  image: z.string().min(1, "Image is required"),
+  buttonText: z.string(),
   buttonLink: z
     .string()
     .url("Button link must be a valid URL")
@@ -81,7 +71,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ initialData }) => {
     defaultValues: initialData || {
       title: "",
       subTitle: null,
-      images: [{ url: "", altText: "" }],
+      image: "",
       buttonText: "Learn More",
       buttonLink: null,
       bannerPosition: "hero",
@@ -155,6 +145,24 @@ export const BannerForm: React.FC<BannerFormProps> = ({ initialData }) => {
           className="space-y-8 w-full"
         >
           <div className="grid grid-cols-3 gap-8">
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Banner Image</FormLabel>
+                  <FormControl>
+                    <ImageUpload
+                      value={field.value ? [field.value] : []}
+                      disabled={loading}
+                      onChange={(url) => field.onChange(url)}
+                      onRemove={() => field.onChange("")}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="title"
@@ -317,61 +325,6 @@ export const BannerForm: React.FC<BannerFormProps> = ({ initialData }) => {
                 </FormItem>
               )}
             />
-          </div>
-
-          <div className="space-y-2">
-            <FormLabel>Banner Images</FormLabel>
-            <div className="space-y-4">
-              {form.watch("images")?.map((_, index) => (
-                <div key={index} className="grid grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name={`images.${index}.url`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <ImageUpload
-                            value={field.value ? [field.value] : []}
-                            disabled={loading}
-                            onChange={(url) => field.onChange(url)}
-                            onRemove={() => field.onChange("")}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`images.${index}.altText`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <Input
-                            disabled={loading}
-                            placeholder="Image alt text"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() =>
-                  form.setValue("images", [
-                    ...form.watch("images"),
-                    { url: "", altText: "" },
-                  ])
-                }
-              >
-                Add Image
-              </Button>
-            </div>
           </div>
 
           <Button disabled={loading} className="ml-auto" type="submit">

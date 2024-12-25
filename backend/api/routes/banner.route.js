@@ -11,7 +11,7 @@ import {
 const router = express.Router();
 
 //user
-router.get("/visible/:storeId", getBanners);
+router.get("/:storeId/visible", getBanners);
 router.get("/:bannerId", getBannerById);
 
 //admin

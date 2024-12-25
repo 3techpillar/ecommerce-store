@@ -311,8 +311,11 @@ export const getProducts = async (req, res, next) => {
         storeId: storeId,
         name: { $regex: new RegExp(category, "i") },
       });
+
       if (categoryDoc) {
         filter.category = categoryDoc._id;
+      } else {
+        return res.status(404).json({ message: "Category not found" });
       }
     }
 
@@ -323,7 +326,7 @@ export const getProducts = async (req, res, next) => {
 
     // Sort configuration
     const sortOrder = sort === "asc" ? 1 : -1;
-    const sortOption = { "priceData.price": sortOrder };
+    const sortOption = { price: sortOrder };
 
     const skip = (Number(page) - 1) * Number(limit);
 
@@ -337,18 +340,18 @@ export const getProducts = async (req, res, next) => {
           from: "prices",
           localField: "price",
           foreignField: "_id",
-          as: "priceData",
+          as: "price",
         },
       },
       {
-        $unwind: "$priceData",
+        $unwind: "$price",
       },
       // Price range filter
       ...(minPrice || maxPrice
         ? [
             {
               $match: {
-                "priceData.price": {
+                price: {
                   ...(minPrice && { $gte: Number(minPrice) }),
                   ...(maxPrice && { $lte: Number(maxPrice) }),
                 },
@@ -361,18 +364,18 @@ export const getProducts = async (req, res, next) => {
           from: "categories",
           localField: "category",
           foreignField: "_id",
-          as: "categoryData",
+          as: "category",
         },
       },
       {
-        $unwind: "$categoryData",
+        $unwind: "$category",
       },
       {
         $lookup: {
           from: "offers",
-          localField: "priceData.offers",
+          localField: "price.offers",
           foreignField: "_id",
-          as: "priceData.offers",
+          as: "price.offers",
         },
       },
       {
@@ -391,6 +394,13 @@ export const getProducts = async (req, res, next) => {
 
     // Get total count for this store
     const totalProducts = await Product.countDocuments(filter);
+    // .populate({
+    //   path: "price",
+    //   populate: {
+    //     path: "offers",
+    //   },
+    // })
+    // .populate("category");
 
     if (!products || products.length === 0) {
       return res.status(404).json({
