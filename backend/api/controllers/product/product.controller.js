@@ -271,6 +271,18 @@ export const getAllProducts = async (req, res, next) => {
   }
 };
 
+const getAllChildCategories = async (categoryId) => {
+  const categories = await Category.find({ parentCategory: categoryId });
+  let allCategoryIds = categories.map((category) => category._id);
+
+  for (const category of categories) {
+    const childCategories = await getAllChildCategories(category._id);
+    allCategoryIds = allCategoryIds.concat(childCategories);
+  }
+
+  return allCategoryIds;
+};
+
 export const getProducts = async (req, res, next) => {
   try {
     const { storeId } = req.params;
@@ -313,7 +325,10 @@ export const getProducts = async (req, res, next) => {
       });
 
       if (categoryDoc) {
-        filter.category = categoryDoc._id;
+        // Fetch all child categories recursively
+        const allCategoryIds = await getAllChildCategories(categoryDoc._id);
+        allCategoryIds.push(categoryDoc._id); // Include the parent category
+        filter.category = { $in: allCategoryIds };
       } else {
         return res.status(404).json({ message: "Category not found" });
       }
