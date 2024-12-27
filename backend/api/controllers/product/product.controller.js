@@ -2,9 +2,10 @@ import mongoose from "mongoose";
 import Product from "../../models/product/product.model.js";
 import Price from "../../models/product/price.model.js";
 import Offer from "../../models/product/offer.model.js";
-import Image from "../../models/product/images.model.js";
 import Category from "../../models/categories/category.model.js";
+
 import { errorHandler } from "../../utils/error.js";
+import { getAllChildCategories } from "../../utils/childCategory.js";
 
 export const createProduct = async (req, res, next) => {
   if (!req.admin) {
@@ -271,17 +272,17 @@ export const getAllProducts = async (req, res, next) => {
   }
 };
 
-const getAllChildCategories = async (categoryId) => {
-  const categories = await Category.find({ parentCategory: categoryId });
-  let allCategoryIds = categories.map((category) => category._id);
+// const getAllChildCategories = async (categoryId) => {
+//   const categories = await Category.find({ parentCategory: categoryId });
+//   let allCategoryIds = categories.map((category) => category._id);
 
-  for (const category of categories) {
-    const childCategories = await getAllChildCategories(category._id);
-    allCategoryIds = allCategoryIds.concat(childCategories);
-  }
+//   for (const category of categories) {
+//     const childCategories = await getAllChildCategories(category._id);
+//     allCategoryIds = allCategoryIds.concat(childCategories);
+//   }
 
-  return allCategoryIds;
-};
+//   return allCategoryIds;
+// };
 
 export const getProducts = async (req, res, next) => {
   try {

@@ -54,6 +54,11 @@ const SidebarItems = () => {
           href: `/${params.storeId}/featured`,
           icon: <Feather size={18} />,
         },
+        {
+          title: "Category Products",
+          href: `/${params.storeId}/product-category`,
+          icon: <Feather size={18} />,
+        },
       ],
     },
     {

@@ -43,7 +43,7 @@ const offerSchema = z.object({
 const formSchema = z.object({
   sku: z.string().min(1, "SKU is required"),
   name: z.string().min(1, "Product name is required"),
-  description: z.string().min(1, "Description is required"),
+  description: z.string().optional(),
   product_type: z.enum(["simple", "variable"]),
   thumbnail: z.string().min(1, "Thumbnail is required"),
   images: z.array(z.string().min(1, "Image URL is required")),

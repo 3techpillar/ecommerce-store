@@ -11,6 +11,7 @@ import productRoutes from "./api/routes/product.route.js";
 import settingRoutes from "./api/routes/setting.route.js";
 import bannerRoutes from "./api/routes/banner.route.js";
 import featuredProductRoutes from "./api/routes/featuredProduct.route.js";
+import categoryProductRoutes from "./api/routes/categoryProduct.route.js";
 import specialCategoryRotues from "./api/routes/category/specialCategory.route.js";
 import couponRoutes from "./api/routes/coupon.route.js";
 
@@ -66,6 +67,7 @@ app.use(`/${API_V}/special-category`, specialCategoryRotues);
 
 app.use(`/${API_V}/product`, productRoutes);
 app.use(`/${API_V}/featured`, featuredProductRoutes);
+app.use(`/${API_V}/category-product`, categoryProductRoutes);
 app.use(`/${API_V}/coupon`, couponRoutes);
 
 //user
