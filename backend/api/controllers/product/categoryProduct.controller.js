@@ -166,11 +166,17 @@ export const getCategoryProducts = async (req, res, next) => {
       })
     );
 
-    if (!result.length) {
-      return next(errorHandler(404, "No category products found"));
+    if (!result || !result.length) {
+      return res.status(200).json({
+        message: "No category products found",
+        data: [],
+      });
     }
 
-    res.status(200).json(result);
+    res.status(200).json({
+      message: "Category products fetched successfully",
+      result: result,
+    });
   } catch (error) {
     console.log("GET_CATEGORY_PRODUCTS", error);
     next(error);

@@ -112,11 +112,17 @@ export const getFeaturedProducts = async (req, res, next) => {
       },
     });
 
-    if (!featuredProducts) {
-      return next(errorHandler(404, "Products not found"));
+    if (!featuredProducts || featuredProducts.length === 0) {
+      return res.status(200).json({
+        message: "No featured products available",
+        data: [],
+      });
     }
 
-    res.status(200).json(featuredProducts);
+    res.status(200).json({
+      message: "Featured products fetched successfully",
+      data: featuredProducts,
+    });
   } catch (error) {
     console.log("GET_FEATURED_PRODUCTS", error);
     next(error);

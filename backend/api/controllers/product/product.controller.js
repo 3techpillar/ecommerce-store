@@ -57,10 +57,12 @@ export const createProduct = async (req, res, next) => {
     });
 
     const createSlug = name
-      .split(" ")
-      .join("-")
       .toLowerCase()
-      .replace(/^a-zA-Z0-9/g, "");
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/[\s-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
     const { storeId } = req.params;
 
@@ -150,8 +152,11 @@ export const updateProduct = async (req, res, next) => {
     if (name) {
       updatedFields.slug = name
         .toLowerCase()
-        .replace(/[^a-z0-9]/g, "-")
-        .replace(/-+/g, "-");
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/[\s-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
     }
 
     // Update offers and calculate discounted price
@@ -272,18 +277,6 @@ export const getAllProducts = async (req, res, next) => {
   }
 };
 
-// const getAllChildCategories = async (categoryId) => {
-//   const categories = await Category.find({ parentCategory: categoryId });
-//   let allCategoryIds = categories.map((category) => category._id);
-
-//   for (const category of categories) {
-//     const childCategories = await getAllChildCategories(category._id);
-//     allCategoryIds = allCategoryIds.concat(childCategories);
-//   }
-
-//   return allCategoryIds;
-// };
-
 export const getProducts = async (req, res, next) => {
   try {
     const { storeId } = req.params;
@@ -322,7 +315,7 @@ export const getProducts = async (req, res, next) => {
     if (category) {
       const categoryDoc = await Category.findOne({
         storeId: storeId,
-        name: { $regex: new RegExp(category, "i") },
+        slug: category,
       });
 
       if (categoryDoc) {
@@ -410,16 +403,9 @@ export const getProducts = async (req, res, next) => {
 
     // Get total count for this store
     const totalProducts = await Product.countDocuments(filter);
-    // .populate({
-    //   path: "price",
-    //   populate: {
-    //     path: "offers",
-    //   },
-    // })
-    // .populate("category");
 
     if (!products || products.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: "No products found for this store",
         currentPage: Number(page),
         totalPages: 0,
@@ -448,6 +434,32 @@ export const getProductById = async (req, res, next) => {
     const { productId } = req.params;
 
     const fetchProductById = await Product.findById(productId)
+      .populate({
+        path: "price",
+        populate: {
+          path: "offers",
+        },
+      })
+      .populate("images");
+
+    if (!fetchProductById || fetchProductById.length === 0) {
+      return res.status(404).json({ message: "No products found" });
+    }
+
+    res.status(200).json(fetchProductById);
+  } catch (error) {
+    console.error("Error fetching single product:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching single product", error: error.message });
+  }
+};
+
+export const getProductBySlug = async (req, res, next) => {
+  try {
+    const { storeId, slug } = req.params;
+
+    const fetchProductById = await Product.findOne({ storeId, slug })
       .populate({
         path: "price",
         populate: {

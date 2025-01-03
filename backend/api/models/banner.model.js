@@ -9,7 +9,7 @@ const bannerSchema = new mongoose.Schema(
     },
     title: {
       type: String,
-      required: true,
+      default: null,
     },
     subTitle: {
       type: String,

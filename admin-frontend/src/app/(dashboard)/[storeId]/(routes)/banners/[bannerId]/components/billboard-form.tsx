@@ -33,7 +33,7 @@ import {
 import ImageUpload from "@/components/ui/image-upload";
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string().nullable().optional(),
   subTitle: z.string().nullable().optional(),
   image: z.string().min(1, "Image is required"),
   buttonText: z.string(),

@@ -25,7 +25,7 @@ export const createBanner = async (req, res, next) => {
       return next(errorHandler(404, "Store Id is required"));
     }
 
-    if (!title || !image) {
+    if (!image) {
       return next(
         errorHandler(400, "Title and at least one image URL is required")
       );
@@ -137,8 +137,11 @@ export const getBanners = async (req, res, next) => {
 
     const banners = await Banner.find({ storeId, isVisible: true });
 
-    if (banners.length === 0) {
-      return next(errorHandler(404, "Banners not found"));
+    if (!banners || !banners.length) {
+      return res.status(200).json({
+        message: "No banner found",
+        banners: [],
+      });
     }
 
     return res
