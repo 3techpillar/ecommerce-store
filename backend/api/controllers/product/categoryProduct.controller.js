@@ -123,20 +123,10 @@ export const getCategoryProducts = async (req, res, next) => {
           ...childCategoryIds,
         ];
 
-        console.log(`Category ${categorySetting.category.name}:`, {
-          storeId,
-          allCategoryIds,
-        });
-
         const productsExist = await Product.findOne({
           storeId,
           category: { $in: allCategoryIds },
         });
-
-        console.log(
-          `Products exist for ${categorySetting.category.name}:`,
-          !!productsExist
-        );
 
         const products = await Product.find({
           storeId,
@@ -150,10 +140,6 @@ export const getCategoryProducts = async (req, res, next) => {
           })
           .sort({ createdAt: -1 })
           .limit(categorySetting.displayLimit);
-
-        console.log(
-          `Found ${products.length} products for ${categorySetting.category.name}`
-        );
 
         return {
           categoryId: categorySetting.category._id,

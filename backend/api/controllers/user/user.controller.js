@@ -4,9 +4,16 @@ import { errorHandler } from "../../utils/error.js";
 import User from "../../models/user/user.modal.js";
 
 export const signup = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
 
-  if (!email || !password || email === "" || password === "") {
+  if (
+    !name ||
+    !email ||
+    !password ||
+    name === "" ||
+    email === "" ||
+    password === ""
+  ) {
     return next(errorHandler(400, "All fields are required"));
   }
 
@@ -19,6 +26,7 @@ export const signup = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
+      name,
       email,
       password: hashedPassword,
     });
