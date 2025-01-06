@@ -298,6 +298,8 @@ export const getProducts = async (req, res, next) => {
     // Base filter with storeId
     const filter = { storeId: new mongoose.Types.ObjectId(storeId) };
 
+    let childCategories = [];
+
     // search filter
     if (search) {
       const searchRegex = new RegExp(search, "i");
@@ -323,6 +325,11 @@ export const getProducts = async (req, res, next) => {
         const allCategoryIds = await getAllChildCategories(categoryDoc._id);
         allCategoryIds.push(categoryDoc._id); // Include the parent category
         filter.category = { $in: allCategoryIds };
+
+        childCategories = await Category.find({
+          parentCategory: categoryDoc._id,
+          storeId: storeId,
+        }).select("name icon slug");
       } else {
         return res.status(404).json({ message: "Category not found" });
       }
@@ -335,7 +342,6 @@ export const getProducts = async (req, res, next) => {
 
     // Sort configuration
     const sortOrder = sort === "asc" ? 1 : -1;
-    const sortOption = { price: sortOrder };
 
     const skip = (Number(page) - 1) * Number(limit);
 
@@ -360,7 +366,7 @@ export const getProducts = async (req, res, next) => {
         ? [
             {
               $match: {
-                price: {
+                "price.discounted_price": {
                   ...(minPrice && { $gte: Number(minPrice) }),
                   ...(maxPrice && { $lte: Number(maxPrice) }),
                 },
@@ -388,7 +394,7 @@ export const getProducts = async (req, res, next) => {
         },
       },
       {
-        $sort: sortOption,
+        $sort: { "price.discounted_price": sortOrder },
       },
       {
         $skip: skip,
@@ -416,6 +422,7 @@ export const getProducts = async (req, res, next) => {
 
     res.status(200).json({
       products,
+      childCategories: childCategories || [],
       currentPage: Number(page),
       totalPages: Math.ceil(totalProducts / Number(limit)),
       totalProducts,
