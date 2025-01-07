@@ -41,7 +41,7 @@ export const signup = async (req, res, next) => {
 
     return res
       .status(200)
-      .cookie("access_token", token, {
+      .cookie("token", token, {
         httpOnly: true,
         maxAge: 180 * 24 * 60 * 60 * 1000,
         secure: process.env.NODE_ENV === "production",
@@ -80,7 +80,7 @@ export const signin = async (req, res, next) => {
 
     res
       .status(200)
-      .cookie("access_token", token, {
+      .cookie("token", token, {
         httpOnly: true,
         maxAge: 180 * 24 * 60 * 60 * 1000,
         secure: process.env.NODE_ENV === "production",
@@ -94,10 +94,7 @@ export const signin = async (req, res, next) => {
 
 export const signout = (req, res, next) => {
   try {
-    res
-      .clearCookie("access_token")
-      .status(200)
-      .json("Admin has been signed out");
+    res.clearCookie("token").status(200).json("User has been signed out");
   } catch (error) {
     next(error);
   }

@@ -293,6 +293,7 @@ export const getProducts = async (req, res, next) => {
       limit = 10,
       page = 1,
       search,
+      is_instock,
     } = req.query;
 
     // Base filter with storeId
@@ -338,6 +339,11 @@ export const getProducts = async (req, res, next) => {
     // Brand filter
     if (brand) {
       filter.brand = { $regex: new RegExp(brand, "i") };
+    }
+
+    // In stock filter
+    if (is_instock === "true") {
+      filter.is_instock = true;
     }
 
     // Sort configuration
