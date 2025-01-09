@@ -32,10 +32,12 @@ export const addToCart = async (req, res, next) => {
     const { storeId } = req.params;
     const { userId, productId, quantity } = req.body;
 
+    // Validate input data
     if (!userId || !productId || !quantity) {
       return next(errorHandler(400, "Invalid input data"));
     }
 
+    // Find product details
     const product = await Product.findById(productId).populate({
       path: "price",
       populate: {
@@ -53,11 +55,14 @@ export const addToCart = async (req, res, next) => {
       );
     }
 
-    const { price = 0, discounted_price = price } = product.price;
+    const { price: originalPrice = 0, discounted_price = originalPrice } =
+      product.price;
 
+    // Check if the user has an active cart
     let cart = await Cart.findOne({ user: userId, isActive: true });
 
     if (!cart) {
+      // Create a new cart if none exists
       cart = new Cart({
         user: userId,
         storeId,
@@ -70,45 +75,57 @@ export const addToCart = async (req, res, next) => {
       });
     }
 
+    // Check if the product already exists in the cart
     const existingItemIndex = cart.items.findIndex(
       (item) => item.product.toString() === productId
     );
 
     if (existingItemIndex > -1) {
+      // Update quantity and details of existing item
       const updatedQuantity = cart.items[existingItemIndex].quantity + quantity;
 
       cart.items[existingItemIndex] = {
         product: productId,
         quantity: updatedQuantity,
         price: discounted_price,
-        totalProductDiscount: (price - discounted_price) * updatedQuantity,
+        totalProductDiscount:
+          (originalPrice - discounted_price) * updatedQuantity,
         totalPrice: discounted_price * updatedQuantity,
       };
     } else {
+      // Add new item to the cart
       cart.items.push({
         product: productId,
         quantity,
         price: discounted_price,
-        totalProductDiscount: (price - discounted_price) * quantity,
+        totalProductDiscount: (originalPrice - discounted_price) * quantity,
         totalPrice: discounted_price * quantity,
       });
     }
 
+    // Recalculate cart totals
     const totals = cart.items.reduce(
       (acc, item) => ({
-        totalPrice: acc.totalPrice + item.price * item.quantity,
+        totalPrice: acc.totalPrice + item.totalPrice,
         totalDiscount: acc.totalDiscount + item.totalProductDiscount,
       }),
       { totalPrice: 0, totalDiscount: 0 }
     );
 
     cart.totalPrice = totals.totalPrice;
-    cart.discount = Math.floor(totals.totalDiscount);
-    cart.totalPriceAfterDiscount = cart.totalPrice - cart.discount;
-    cart.netPrice = cart.totalPriceAfterDiscount;
+    cart.discount = totals.totalDiscount;
+    cart.totalPriceAfterDiscount = cart.totalPrice;
+    cart.netPrice = cart.totalPrice;
 
+    // Apply coupon discount if a coupon is already applied
+    if (cart.appliedCoupon && cart.couponDiscountAmount) {
+      cart.netPrice = Math.max(0, cart.totalPrice - cart.couponDiscountAmount);
+    }
+
+    // Save the cart
     await cart.save();
 
+    // Populate the cart for response
     const populatedCart = await populateCart(cart._id);
 
     return res.status(201).json({

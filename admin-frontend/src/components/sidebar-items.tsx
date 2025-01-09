@@ -87,6 +87,11 @@ const SidebarItems = () => {
       icon: <ShoppingCart size={18} />,
     },
     {
+      title: "Shipping",
+      href: `/${params.storeId}/shipping`,
+      icon: <ShoppingCart size={18} />,
+    },
+    {
       title: "Settings",
       href: `/${params.storeId}/settings`,
       icon: <Settings size={18} />,
