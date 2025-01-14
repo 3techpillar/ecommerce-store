@@ -33,6 +33,128 @@ const addressSubSchema = new Schema(
   }
 );
 
+// Attribute schema for product
+const attributeSchema = new Schema(
+  {
+    key: {
+      type: String,
+      required: true,
+    },
+    value: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
+// Offer schema for price
+const offerSchema = new Schema(
+  {
+    offer_type: {
+      type: String,
+      enum: ["flat", "percentage"],
+    },
+    flat_value: {
+      type: Number,
+      required: function () {
+        return this.offer_type === "flat";
+      },
+    },
+    percentage_value: {
+      type: Number,
+      required: function () {
+        return this.offer_type === "percentage";
+      },
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
+// Price schema for product
+const priceSchema = new Schema(
+  {
+    price: {
+      type: Number,
+      required: true,
+    },
+    offers: [offerSchema],
+    total_discount: {
+      type: Number,
+      required: true,
+    },
+    discounted_price: {
+      type: Number,
+      required: true,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
+// Product schema for order items
+const orderProductSchema = new Schema(
+  {
+    sku: {
+      type: String,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+    },
+    slug: {
+      type: String,
+      required: true,
+    },
+    product_type: {
+      type: String,
+      required: true,
+      enum: ["simple", "variable"],
+    },
+    thumbnail: {
+      type: String,
+      required: true,
+    },
+    images: {
+      type: [String],
+      required: true,
+    },
+    attributes: {
+      type: [attributeSchema],
+      default: [],
+    },
+    brand: {
+      type: String,
+      default: "General",
+    },
+    category: {
+      name: { type: String },
+      slug: { type: String },
+    },
+    rating: {
+      type: Number,
+      required: true,
+    },
+    numReviews: {
+      type: Number,
+      required: true,
+    },
+    price_data: priceSchema,
+  },
+  {
+    _id: false,
+  }
+);
+
 const orderSchema = new Schema(
   {
     storeId: {
@@ -48,8 +170,7 @@ const orderSchema = new Schema(
     items: [
       {
         product: {
-          type: Schema.Types.ObjectId,
-          ref: "Product",
+          type: orderProductSchema,
           required: true,
         },
         quantity: {
@@ -90,6 +211,25 @@ const orderSchema = new Schema(
       type: Number,
       required: true,
     },
+    selectedShippingMethod: {
+      shippingType: {
+        type: String,
+        required: true,
+        enum: ["1-day", "2-day", "normal"],
+      },
+      shippingCode: {
+        type: String,
+        required: true,
+      },
+      shippingCharges: {
+        type: Number,
+        required: true,
+      },
+    },
+    netPrice: {
+      type: Number,
+      required: true,
+    },
     shippingAddress: {
       type: addressSubSchema,
       required: true,
@@ -97,7 +237,6 @@ const orderSchema = new Schema(
     paymentMethod: {
       type: String,
       enum: ["cashOnDelivery", "online"],
-      default: "cashOnDelivery",
     },
     paymentStatus: {
       type: String,

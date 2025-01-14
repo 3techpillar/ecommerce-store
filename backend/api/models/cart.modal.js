@@ -1,5 +1,38 @@
 import { Schema, model } from "mongoose";
 
+const addressSubSchema = new Schema(
+  {
+    street: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    state: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    country: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    zipCode: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
 const cartSchema = new Schema(
   {
     user: {
@@ -64,10 +97,30 @@ const cartSchema = new Schema(
       type: Number,
       default: 0,
     },
+    billingAddress: {
+      type: addressSubSchema,
+    },
     shippingAddress: {
-      type: Schema.Types.ObjectId,
-      ref: "Address",
+      type: addressSubSchema,
+    },
+    paymentMethod: {
+      type: String,
       default: null,
+    },
+    selectedShippingMethod: {
+      shippingCode: {
+        type: String,
+        default: null,
+      },
+      shippingType: {
+        type: String,
+        enum: ["1-day", "2-day", "normal"],
+        default: null,
+      },
+      shippingCharges: {
+        type: Number,
+        default: 0,
+      },
     },
     isActive: {
       type: Boolean,

@@ -1,6 +1,7 @@
 import Cart from "../models/cart.modal.js";
 import Coupon from "../models/coupon.model.js";
 import Product from "../models/product/product.model.js";
+import Shipping from "../models/shipping.model.js";
 import Address from "../models/user/address.modal.js";
 import { errorHandler } from "../utils/error.js";
 
@@ -343,7 +344,7 @@ export const getCart = async (req, res, next) => {
     });
 
     if (!cart) {
-      return next(errorHandler(404, "Cart not found"));
+      return next(errorHandler(200, "Cart not found"));
     }
 
     return res.status(201).json({
@@ -380,48 +381,6 @@ export const clearCart = async (req, res, next) => {
     res.status(201).json({ success: true, message: "Your cart is cleared" });
   } catch (error) {
     console.error("DELETE_CLEARCART", error);
-    next(error);
-  }
-};
-
-export const updateCartShippingAddress = async (req, res, next) => {
-  try {
-    const { userId } = req.params;
-    const { addressId, shippingAddress } = req.body;
-
-    const cart = await Cart.findOne({ user: userId, isActive: true });
-    if (!cart) {
-      return next(errorHandler(404, "Cart not found"));
-    }
-
-    let savedAddress;
-
-    if (addressId) {
-      savedAddress = await Address.findOne({ _id: addressId, user: userId });
-      if (!savedAddress) {
-        return next(errorHandler(404, "Billing address not found"));
-      }
-    } else if (shippingAddress) {
-      const newAddress = new Address({
-        ...shippingAddress,
-        user: userId,
-      });
-      savedAddress = await newAddress.save();
-    } else {
-      return next(errorHandler(400, "Shipping address is required"));
-    }
-
-    cart.shippingAddress = savedAddress._id;
-
-    await cart.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Shipping address updated in the cart",
-      cart: await populateCart(cart._id),
-    });
-  } catch (error) {
-    console.log("UPDATE_CART_SHIPPING_ADDRESS_ERROR", error);
     next(error);
   }
 };
@@ -467,6 +426,132 @@ export const getallCart = async (req, res, next) => {
     });
   } catch (error) {
     console.error("GET_GET_ALL_CART", error);
+    next(error);
+  }
+};
+
+export const updateCheckoutDetails = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const {
+      billingAddress,
+      shippingAddress,
+      useBillingAsShipping,
+      paymentMethod,
+      shippingType,
+    } = req.body;
+
+    const cart = await Cart.findOne({ user: userId, isActive: true });
+    if (!cart) {
+      return next(errorHandler(404, "Cart not found"));
+    }
+
+    // Handle Billing Address
+    if (billingAddress) {
+      // Save billing address in cart directly
+      cart.billingAddress = {
+        street: billingAddress.street,
+        city: billingAddress.city,
+        state: billingAddress.state,
+        country: billingAddress.country,
+        zipCode: billingAddress.zipCode,
+      };
+
+      // Also save it in Address collection for future use
+      const existingAddress = await Address.findOne({
+        user: userId,
+        street: billingAddress.street,
+        city: billingAddress.city,
+        state: billingAddress.state,
+        zipCode: billingAddress.zipCode,
+        country: billingAddress.country,
+      });
+
+      if (!existingAddress) {
+        // Save as new address if it doesn't exist
+        const newAddress = new Address({
+          ...billingAddress,
+          user: userId,
+          isDefault: !(await Address.exists({ user: userId })), // Make default if first address
+        });
+        await newAddress.save();
+      }
+    }
+
+    // Handle Shipping Address
+    if (useBillingAsShipping && cart.billingAddress) {
+      // Deep copy billing address to shipping address
+      cart.shippingAddress = JSON.parse(JSON.stringify(cart.billingAddress));
+    } else if (shippingAddress) {
+      // Save shipping address directly in cart
+      cart.shippingAddress = {
+        street: shippingAddress.street,
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        country: shippingAddress.country,
+        zipCode: shippingAddress.zipCode,
+      };
+
+      // Also save it in Address collection for future use
+      const existingAddress = await Address.findOne({
+        user: userId,
+        street: shippingAddress.street,
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        zipCode: shippingAddress.zipCode,
+        country: shippingAddress.country,
+      });
+
+      if (!existingAddress) {
+        // Save as new address if it doesn't exist
+        const newAddress = new Address({
+          ...shippingAddress,
+          user: userId,
+          isDefault: false, // Shipping addresses are never default
+        });
+        await newAddress.save();
+      }
+    }
+
+    if (paymentMethod) {
+      if (!["cashOnDelivery", "online"].includes(paymentMethod)) {
+        return next(errorHandler(400, "Invalid payment method"));
+      }
+      cart.paymentMethod = paymentMethod;
+    }
+
+    console.log("update cart details", shippingType);
+
+    if (shippingType) {
+      const shipping = await Shipping.findOne({
+        storeId: cart.storeId,
+        type: shippingType,
+        isActive: true,
+      });
+
+      if (!shipping) {
+        return next(errorHandler(404, "Shipping type not found or inactive"));
+      }
+
+      cart.selectedShippingMethod = {
+        shippingCode: shipping.code,
+        shippingType: shipping.type,
+        shippingCharges: shipping.charges,
+      };
+
+      const baseNetPrice = cart.totalPriceAfterDiscount || cart.totalPrice;
+      cart.netPrice = baseNetPrice + shipping.charges;
+    }
+
+    await cart.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Addresses updated in the cart",
+      cart: populateCart(cart._id),
+    });
+  } catch (error) {
+    console.error("UPDATE_CART_SHIPPING_ADDRESS_ERROR:", error);
     next(error);
   }
 };

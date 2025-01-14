@@ -1,12 +1,11 @@
 import Order from "../models/order.modal.js";
 import Cart from "../models/cart.modal.js";
 import { errorHandler } from "../utils/error.js";
+import SalesOrder from "../models/salesOrder.model.js";
 
 export const createOrder = async (req, res, next) => {
   try {
     const { userId, storeId } = req.params;
-
-    const { paymentMethod } = req.body;
 
     const cart = await Cart.findOne({ user: userId, isActive: true }).populate([
       {
@@ -35,34 +34,84 @@ export const createOrder = async (req, res, next) => {
       );
     }
 
-    const shippingAddress = {
-      ...cart.shippingAddress,
-    };
+    if (!cart.selectedShippingMethod?.shippingType) {
+      return next(errorHandler(400, "Shipping method is required"));
+    }
 
+    const orderItems = cart.items.map((item) => ({
+      product: {
+        sku: item.product.sku,
+        name: item.product.name,
+        description: item.product.description,
+        slug: item.product.slug,
+        product_type: item.product.product_type,
+        thumbnail: item.product.thumbnail,
+        images: item.product.images,
+        attributes: item.product.attributes,
+        brand: item.product.brand,
+        category: {
+          name: item.product.category.name,
+          slug: item.product.category.slug,
+        },
+        rating: item.product.rating,
+        numReviews: item.product.numReviews,
+        price_data: {
+          price: item.product.price.price,
+          offers: item.product.price.offers,
+          total_discount: item.product.price.total_discount,
+          discounted_price: item.product.price.discounted_price,
+        },
+      },
+      quantity: item.quantity,
+      price: item.price,
+      totalProductDiscount: item.totalProductDiscount || 0,
+      totalPrice: item.totalPrice,
+    }));
+
+    //create new order
     const newOrder = new Order({
       storeId,
       user: userId,
-      items: cart.items.map((item) => ({
-        product: item.product._id,
-        quantity: item.quantity,
-        price: item.price,
-        totalProductDiscount: item.totalProductDiscount || 0,
-        totalPrice: item.price * item.quantity,
-      })),
+      items: orderItems,
       totalPrice: cart.totalPrice,
       discount: cart.discount,
-      couponCode: cart.appliedCoupon ? cart.appliedCoupon.code : null,
-      couponDiscountAmount: cart.couponDiscountAmount
-        ? cart.couponDiscountAmount
-        : 0,
+      couponCode: cart.appliedCoupon?.code || null,
+      couponDiscountAmount: cart.couponDiscountAmount || 0,
       totalPriceAfterDiscount: cart.totalPriceAfterDiscount,
-      shippingAddress,
-      paymentMethod,
+      selectedShippingMethod: {
+        shippingType: cart.selectedShippingMethod.shippingType,
+        shippingCode: cart.selectedShippingMethod.shippingCode,
+        shippingCharges: cart.selectedShippingMethod.shippingCharges,
+      },
+      netPrice: cart.netPrice,
+      shippingAddress: cart.shippingAddress,
+      paymentMethod: cart.paymentMethod,
       paymentStatus: "pending",
       orderStatus: "pending",
+      history: [
+        {
+          writtenBy: "system",
+          orderStatusLog: "Order created",
+          paymentStatusLog: "Payment pending",
+          comment: "Order placed successfully",
+        },
+      ],
     });
 
     const savedOrder = await newOrder.save();
+
+    //create sales order
+    const salesOrders = savedOrder.items.map((item) => ({
+      storeId,
+      orderId: savedOrder._id,
+      product: item.product,
+      quantity: item.quantity,
+      price: item.price,
+      totalProductDiscount: item.totalProductDiscount,
+      totalPrice: item.totalPrice,
+    }));
+
+    await SalesOrder.insertMany(salesOrders);
 
     await Cart.findOneAndUpdate(
       { user: userId, isActive: true },
@@ -140,6 +189,7 @@ export const updateOrderStatus = async (req, res, next) => {
   }
 };
 
+//user
 export const cancelOrder = async (req, res, next) => {
   try {
     const { userId, orderId } = req.params;
@@ -230,6 +280,7 @@ export const getUserOrders = async (req, res, next) => {
     const orders = await Order.find(filter).populate([
       {
         path: "user",
+        select: "name email phone",
       },
       {
         path: "items.product",

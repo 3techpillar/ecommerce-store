@@ -134,14 +134,18 @@ export const getUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const validUser = await User.findById(id);
+    const validUser = await User.findById(id).select("-password");
 
     if (!validUser) {
       return next(errorHandler(404, "User not found"));
     }
 
-    res.status(200).json({ data: validUser });
+    res.status(200).json({
+      success: true,
+      data: validUser,
+    });
   } catch (error) {
+    console.error("GET_USER_BY_ID_ERROR:", error);
     next(error);
   }
 };

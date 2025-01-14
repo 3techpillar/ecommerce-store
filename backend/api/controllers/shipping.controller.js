@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import Shipping from "../models/shipping.model.js";
 import { errorHandler } from "../utils/error.js";
 
@@ -16,8 +17,21 @@ export const createShipping = async (req, res, next) => {
       return next(errorHandler(400, "Shipping charges is already exists"));
     }
 
+    let code;
+    let isCodeUnique = false;
+
+    while (!isCodeUnique) {
+      code = nanoid(8).toUpperCase();
+
+      const existingCode = await Shipping.findOne({ code });
+      if (!existingCode) {
+        isCodeUnique = true;
+      }
+    }
+
     const newShipping = new Shipping({
       storeId,
+      code,
       type,
       charges,
       isActive,

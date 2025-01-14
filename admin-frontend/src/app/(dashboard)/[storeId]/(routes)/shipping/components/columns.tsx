@@ -5,12 +5,17 @@ import { CellAction } from "./cell-action";
 
 export type ShippingColumn = {
   id: string;
+  code: string;
   type: string;
   charges: number;
   isActive: boolean;
 };
 
 export const columns: ColumnDef<ShippingColumn>[] = [
+  {
+    accessorKey: "code",
+    header: "Code",
+  },
   {
     accessorKey: "type",
     header: "Type",

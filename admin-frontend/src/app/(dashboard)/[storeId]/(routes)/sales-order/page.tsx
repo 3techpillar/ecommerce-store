@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { format } from "date-fns";
 
-import { ShippingClient } from "./components/client";
-import { ShippingColumn } from "./components/columns";
+import { SalesOrderClient } from "./components/client";
+import { SalesOrderColumn } from "./components/columns";
 import api from "@/lib/axios";
 import { useParams, useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
@@ -15,16 +16,19 @@ interface Store {
   currency: string;
 }
 
-interface Coupons {
+interface SalesOrders {
   _id: string;
-  code: string;
-  type: string;
-  charges: number;
-  isActive: boolean;
+  product: {
+    thumbnail: string;
+    name: string;
+  };
+  totalPrice: number;
+  quantity: string;
+  orderId: string;
 }
 
-const Shipping = () => {
-  const [shipping, setShipping] = useState<Coupons[]>([]);
+const Order = () => {
+  const [salesOrders, setSalesOrders] = useState<SalesOrders[]>([]);
   const [store, setStore] = useState<Store | null>(null);
 
   const { user } = useAuthStore();
@@ -53,37 +57,38 @@ const Shipping = () => {
     fetchStore();
   }, [user, params.storeId, router]);
 
-  const fetchShipping = async () => {
+  const fetchOrders = async () => {
     try {
-      const response = await api.get(`/v1/shipping/${params.storeId}`);
+      const response = await api.get(`/v1/sales-order/${params.storeId}`);
 
-      setShipping(response.data.shipping);
+      setSalesOrders(response.data.salesOrders);
     } catch (error) {
       console.log("Error while fetching products", error);
     }
   };
 
   useEffect(() => {
-    fetchShipping();
+    fetchOrders();
   }, []);
 
-  const formattedShipping: ShippingColumn[] = shipping.map((item) => ({
-    id: item._id,
-    code: item.code,
-    type: item.type,
-    charges: store?.currency
-      ? formatPrice(item.charges, store.currency)
-      : item.charges,
-    isActive: item.isActive,
+  const formattedSalesOrders: SalesOrderColumn[] = salesOrders.map((item) => ({
+    _id: item._id,
+    thumbnail: item.product.thumbnail,
+    name: item.product.name,
+    totalPrice: store?.currency
+      ? formatPrice(item.totalPrice, store.currency)
+      : item.totalPrice,
+    quantity: item.quantity,
+    orderId: item.orderId,
   }));
 
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <ShippingClient data={formattedShipping} />
+        <SalesOrderClient data={formattedSalesOrders} />
       </div>
     </div>
   );
 };
 
-export default Shipping;
+export default Order;

@@ -7,7 +7,7 @@ import {
   getCart,
   removeCoupon,
   removeFromCart,
-  updateCartShippingAddress,
+  updateCheckoutDetails,
 } from "../controllers/cart.controller.js";
 
 const router = express.Router();
@@ -16,9 +16,12 @@ router.get("/get-by-store/:storeId", getallCart); //admin
 
 router.get("/get-by-userId/:userId", getCart); //admin
 router.post("/:storeId", addToCart);
+
+router.delete("/:userId/clear", clearCart);
+
 router.delete("/:userId/:productId", removeFromCart);
-router.delete("/clear/:userId", clearCart);
-router.put("/:userId/shipping-address", updateCartShippingAddress);
+
+router.put("/:userId/addresses", updateCheckoutDetails);
 
 router.post("/coupon/apply", applyCoupon);
 router.post("/coupon/remove", removeCoupon);

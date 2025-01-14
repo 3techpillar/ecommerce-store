@@ -15,6 +15,7 @@ import categoryProductRoutes from "./api/routes/categoryProduct.route.js";
 import specialCategoryRotues from "./api/routes/category/specialCategory.route.js";
 import couponRoutes from "./api/routes/coupon.route.js";
 import shippingRoutes from "./api/routes/shipping.route.js";
+import salesRoutes from "./api/routes/salesOrder.route.js";
 
 //user
 import userRoutes from "./api/routes/user/user.route.js";
@@ -71,6 +72,7 @@ app.use(`/${API_V}/featured`, featuredProductRoutes);
 app.use(`/${API_V}/category-product`, categoryProductRoutes);
 app.use(`/${API_V}/coupon`, couponRoutes);
 app.use(`/${API_V}/shipping`, shippingRoutes);
+app.use(`/${API_V}/sales-order`, salesRoutes);
 
 //user
 app.use(`/${API_V}/user`, userRoutes);

@@ -7,6 +7,9 @@ const shippingSchema = new Schema(
       ref: "Store",
       required: true,
     },
+    code: {
+      type: String,
+    },
     type: {
       type: String,
       enum: ["1-day", "2-day", "normal"],

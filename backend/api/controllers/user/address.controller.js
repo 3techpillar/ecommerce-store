@@ -36,7 +36,7 @@ export const addAddress = async (req, res, next) => {
 };
 
 export const getAddress = async (req, res, next) => {
-  const { userId } = req.user;
+  const { userId } = req.params;
 
   try {
     const addresses = await Address.find({ user: userId });
