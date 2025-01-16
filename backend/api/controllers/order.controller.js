@@ -295,7 +295,7 @@ export const getUserOrders = async (req, res, next) => {
     ]);
 
     if (!orders || orders.length === 0) {
-      return next(errorHandler(404, "Orders not found"));
+      return next(errorHandler(201, "Orders not found"));
     }
 
     return res
@@ -314,6 +314,7 @@ export const getOrderById = async (req, res, next) => {
     const order = await Order.findById(orderId).populate([
       {
         path: "user",
+        select: "name email phone",
       },
       {
         path: "items.product",

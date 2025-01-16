@@ -2,7 +2,7 @@ import Address from "../../models/user/address.modal.js";
 import { errorHandler } from "../../utils/error.js";
 
 export const addAddress = async (req, res, next) => {
-  const { userId } = req.user;
+  const { userId } = req.params;
   const { street, city, state, country, zipCode, isDefault } = req.body;
 
   if (!street || !city || !state || !country || !zipCode) {
@@ -52,8 +52,7 @@ export const getAddress = async (req, res, next) => {
 };
 
 export const updateAddress = async (req, res, next) => {
-  const { userId } = req.user;
-  const { addressId } = req.params;
+  const { userId, addressId } = req.params;
   const { street, city, state, country, zipCode, isDefault } = req.body;
 
   try {
@@ -102,6 +101,22 @@ export const deleteAddress = async (req, res, next) => {
     }
 
     res.status(200).json({ message: "Address deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAddressById = async (req, res, next) => {
+  const { addressId } = req.params;
+
+  try {
+    const address = await Address.findById(addressId);
+
+    if (!address) {
+      return res.status(404).json({ message: "No addresses found" });
+    }
+
+    res.status(200).json({ address });
   } catch (error) {
     next(error);
   }
