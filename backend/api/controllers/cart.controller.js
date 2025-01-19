@@ -157,6 +157,10 @@ export const applyCoupon = async (req, res, next) => {
       return next(errorHandler(400, "Invalid coupon code"));
     }
 
+    if (cart.appliedCoupon?.toString() === coupon._id.toString()) {
+      return next(errorHandler(400, "You already applied this coupon"));
+    }
+
     if (!coupon.isActive) {
       return next(errorHandler(400, "This coupon is no longer active"));
     }
@@ -185,7 +189,9 @@ export const applyCoupon = async (req, res, next) => {
 
     cart.appliedCoupon = coupon._id;
     cart.couponDiscountAmount = couponDiscountAmount;
-    cart.netPrice = cart.totalPrice - cart.discount - couponDiscountAmount;
+    cart.totalPriceAfterDiscount =
+      cart.totalPriceAfterDiscount - couponDiscountAmount;
+    cart.netPrice = cart.totalPriceAfterDiscount;
 
     await cart.save();
 
@@ -446,9 +452,7 @@ export const updateCheckoutDetails = async (req, res, next) => {
       return next(errorHandler(404, "Cart not found"));
     }
 
-    // Handle Billing Address
     if (billingAddress) {
-      // Save billing address in cart directly
       cart.billingAddress = {
         street: billingAddress.street,
         city: billingAddress.city,
@@ -457,7 +461,6 @@ export const updateCheckoutDetails = async (req, res, next) => {
         zipCode: billingAddress.zipCode,
       };
 
-      // Also save it in Address collection for future use
       const existingAddress = await Address.findOne({
         user: userId,
         street: billingAddress.street,
@@ -468,22 +471,18 @@ export const updateCheckoutDetails = async (req, res, next) => {
       });
 
       if (!existingAddress) {
-        // Save as new address if it doesn't exist
         const newAddress = new Address({
           ...billingAddress,
           user: userId,
-          isDefault: !(await Address.exists({ user: userId })), // Make default if first address
+          isDefault: !(await Address.exists({ user: userId })),
         });
         await newAddress.save();
       }
     }
 
-    // Handle Shipping Address
     if (useBillingAsShipping && cart.billingAddress) {
-      // Deep copy billing address to shipping address
       cart.shippingAddress = JSON.parse(JSON.stringify(cart.billingAddress));
     } else if (shippingAddress) {
-      // Save shipping address directly in cart
       cart.shippingAddress = {
         street: shippingAddress.street,
         city: shippingAddress.city,
@@ -492,7 +491,6 @@ export const updateCheckoutDetails = async (req, res, next) => {
         zipCode: shippingAddress.zipCode,
       };
 
-      // Also save it in Address collection for future use
       const existingAddress = await Address.findOne({
         user: userId,
         street: shippingAddress.street,
@@ -503,11 +501,10 @@ export const updateCheckoutDetails = async (req, res, next) => {
       });
 
       if (!existingAddress) {
-        // Save as new address if it doesn't exist
         const newAddress = new Address({
           ...shippingAddress,
           user: userId,
-          isDefault: false, // Shipping addresses are never default
+          isDefault: false,
         });
         await newAddress.save();
       }
@@ -519,8 +516,6 @@ export const updateCheckoutDetails = async (req, res, next) => {
       }
       cart.paymentMethod = paymentMethod;
     }
-
-    console.log("update cart details", shippingType);
 
     if (shippingType) {
       const shipping = await Shipping.findOne({
@@ -539,8 +534,7 @@ export const updateCheckoutDetails = async (req, res, next) => {
         shippingCharges: shipping.charges,
       };
 
-      const baseNetPrice = cart.totalPriceAfterDiscount || cart.totalPrice;
-      cart.netPrice = baseNetPrice + shipping.charges;
+      cart.netPrice = cart.totalPriceAfterDiscount + shipping.charges;
     }
 
     await cart.save();
