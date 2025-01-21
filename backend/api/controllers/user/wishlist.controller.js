@@ -2,7 +2,7 @@ import Wishlist from "../../models/user/wishlist.model.js";
 import Product from "../../models/product/product.model.js";
 import { errorHandler } from "../../utils/error.js";
 
-export const addRemoveWishlist = async (req, res, next) => {
+export const addToWishlist = async (req, res, next) => {
   try {
     const { userId, productId } = req.body;
 
@@ -23,27 +23,60 @@ export const addRemoveWishlist = async (req, res, next) => {
       });
     }
 
-    const productIndex = wishlist.products.indexOf(productId);
-
-    if (productIndex === -1) {
-      wishlist.products.push(productId);
-
-      return res.status(200).json({
-        success: true,
-        message: "Product added to wishlist successfully",
-        wishlist,
-      });
-    } else {
-      wishlist.products.splice(productIndex, 1);
-
-      return res.status(200).json({
-        success: true,
-        message: "Product removed from wishlist successfully",
-        wishlist,
-      });
+    if (wishlist.products.includes(productId)) {
+      return next(errorHandler(400, "Product already in wishlist"));
     }
+
+    wishlist.products.push(productId);
+    await wishlist.save();
+
+    const updatedWishlist = await Wishlist.findOne({ user: userId }).populate(
+      "products"
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Product added to wishlist successfully",
+      wishlist: updatedWishlist,
+    });
   } catch (error) {
-    console.log("POST_ADDTOWISHLIST");
+    console.error("ADD_TO_WISHLIST:", error);
+    next(error);
+  }
+};
+
+export const removeFromWishlist = async (req, res, next) => {
+  try {
+    const { userId, productId } = req.body;
+
+    if (!userId || !productId) {
+      return next(errorHandler(400, "Invalid input data"));
+    }
+
+    const wishlist = await Wishlist.findOne({ user: userId });
+    if (!wishlist) {
+      return next(errorHandler(404, "Wishlist not found"));
+    }
+
+    const productIndex = wishlist.products.indexOf(productId);
+    if (productIndex === -1) {
+      return next(errorHandler(404, "Product not found in wishlist"));
+    }
+
+    wishlist.products.splice(productIndex, 1);
+    await wishlist.save();
+
+    const updatedWishlist = await Wishlist.findOne({ user: userId }).populate(
+      "products"
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Product removed from wishlist successfully",
+      wishlist: updatedWishlist,
+    });
+  } catch (error) {
+    console.error("REMOVE_FROM_WISHLIST:", error);
     next(error);
   }
 };
@@ -75,9 +108,14 @@ export const getWishlist = async (req, res, next) => {
   try {
     const { userId } = req.params;
 
-    const wishlist = await Wishlist.findOne({ user: userId }).populate(
-      "products"
-    );
+    const wishlist = await Wishlist.findOne({ user: userId }).populate([
+      {
+        path: "products",
+        populate: {
+          path: "price",
+        },
+      },
+    ]);
     if (!wishlist) {
       return next(errorHandler(404, "Wishlist not found"));
     }

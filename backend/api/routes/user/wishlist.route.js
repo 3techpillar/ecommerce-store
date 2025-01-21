@@ -1,13 +1,15 @@
 import express from "express";
 import {
-  addRemoveWishlist,
+  addToWishlist,
   clearWishlist,
   getWishlist,
+  removeFromWishlist,
 } from "../../controllers/user/wishlist.controller.js";
 
 const router = express.Router();
 
-router.post("/", addRemoveWishlist);
+router.post("/add", addToWishlist);
+router.post("/remove", removeFromWishlist);
 router.post("/clear/:userId", clearWishlist);
 router.get("/get/:userId", getWishlist);
 

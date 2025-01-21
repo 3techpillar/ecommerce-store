@@ -217,7 +217,7 @@ export const removeCoupon = async (req, res, next) => {
 
     cart.appliedCoupon = null;
     cart.couponDiscountAmount = 0;
-    cart.totalPriceAfterDiscount = cart.totalPrice - cart.discount;
+    cart.totalPriceAfterDiscount = cart.totalPrice - cart.couponDiscountAmount;
     cart.netPrice = cart.totalPriceAfterDiscount;
 
     await cart.save();
