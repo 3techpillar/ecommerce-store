@@ -135,6 +135,7 @@ export const updateProduct = async (req, res, next) => {
       name,
       product_type,
       thumbnail,
+      images,
       attributes,
       brand,
       category,
@@ -264,6 +265,8 @@ export const getAllProducts = async (req, res, next) => {
           path: "offers",
         },
       })
+      .populate("brand")
+      .populate("category")
       .populate("category");
     if (!products || products.length === 0) {
       return res.status(404).json({ message: "No products found" });
@@ -338,7 +341,7 @@ export const getProducts = async (req, res, next) => {
 
     // Brand filter
     if (brand) {
-      filter.brand = { $regex: new RegExp(brand, "i") };
+      filter["brand.brandName"] = { $regex: new RegExp(brand, "i") };
     }
 
     // In stock filter
@@ -380,6 +383,17 @@ export const getProducts = async (req, res, next) => {
             },
           ]
         : []),
+      {
+        $lookup: {
+          from: "brands",
+          localField: "brand",
+          foreignField: "_id",
+          as: "brand",
+        },
+      },
+      {
+        $unwind: "$brand",
+      },
       {
         $lookup: {
           from: "categories",
@@ -453,6 +467,8 @@ export const getProductById = async (req, res, next) => {
           path: "offers",
         },
       })
+      .populate("brand")
+      .populate("category")
       .populate("images");
 
     if (!fetchProductById || fetchProductById.length === 0) {
@@ -479,6 +495,8 @@ export const getProductBySlug = async (req, res, next) => {
           path: "offers",
         },
       })
+      .populate("brand")
+      .populate("category")
       .populate("images");
 
     if (!fetchProductById || fetchProductById.length === 0) {

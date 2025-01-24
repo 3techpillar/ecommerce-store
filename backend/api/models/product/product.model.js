@@ -61,8 +61,8 @@ const productSchema = new mongoose.Schema(
       default: [],
     },
     brand: {
-      type: String,
-      default: "General",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Brand",
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,

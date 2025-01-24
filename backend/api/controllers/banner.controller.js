@@ -100,7 +100,7 @@ export const deleteBanner = async (req, res, next) => {
     const { bannerId } = req.params;
 
     if (!bannerId) {
-      return next(errorHandler(404, "Banner Id is required to update banner"));
+      return next(errorHandler(404, "Banner Id is required to delete banner"));
     }
 
     await Banner.findByIdAndDelete(bannerId);
@@ -167,11 +167,9 @@ export const getBannerById = async (req, res, next) => {
       return next(errorHandler(404, "Banner not found"));
     }
 
-    return res
-      .status(200)
-      .json({ message: "All visible banner fetched", banner });
+    return res.status(200).json({ message: "banner fetched", banner });
   } catch (error) {
-    console.log("GET_VISIBLE_BANNER", error);
+    console.log("GET_BANNER_BY_ID", error);
     next(error);
   }
 };

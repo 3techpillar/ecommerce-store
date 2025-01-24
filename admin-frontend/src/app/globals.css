@@ -92,3 +92,51 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+
+.prose {
+  max-width: none;
+}
+
+.prose p {
+  margin: 0;
+}
+
+.prose strong {
+  font-weight: 700;
+}
+
+.prose h1 {
+  font-size: 1.5em;
+}
+
+
+.prose h2 {
+  font-size: 1.25em;
+}
+
+.prose ul,
+.prose ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+.prose ul {
+  list-style-type: disc;
+}
+
+.prose ol {
+  list-style-type: decimal;
+}
+
+.prose li>p {
+  margin: 0;
+}
+
+.prose li {
+  margin: 0;
+  padding: 0;
+}
+
+.prose a {
+  color: blue;
+}

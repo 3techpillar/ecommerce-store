@@ -62,6 +62,11 @@ const SidebarItems = () => {
       ],
     },
     {
+      title: "Brands",
+      href: `/${params.storeId}/brand`,
+      icon: <Network size={18} />,
+    },
+    {
       title: "Categories",
       href: `/${params.storeId}/categories`,
       icon: <Network size={18} />,

@@ -33,6 +33,7 @@ import {
 import ImageUpload from "@/components/ui/image-upload";
 import { Textarea } from "@/components/ui/textarea";
 import ProductImageUpload from "@/components/ui/product-image-upload";
+import RichTextEditor from "./text-editor";
 
 const offerSchema = z.object({
   offer_type: z.enum(["flat", "percentage"]),
@@ -80,6 +81,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   const router = useRouter();
 
   const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -95,8 +97,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
     }
   };
 
+  const fetchBrands = async () => {
+    try {
+      const response = await api.get(`/v1/brand/all/${params.storeId}`);
+      console.log("fetch banners:", response.data.brands);
+
+      setBrands(response.data.brands);
+    } catch (error) {
+      console.log("Error while fetching brands", error);
+    }
+  };
+
   useEffect(() => {
     fetchCategories();
+    fetchBrands();
   }, []);
 
   const title = initialData ? "Edit product" : "Create product";
@@ -339,9 +353,23 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Brand</FormLabel>
-                  <FormControl>
-                    <Input disabled={loading} placeholder="Brand" {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a brand" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {brands.map((brand) => (
+                        <SelectItem key={brand._id} value={brand._id}>
+                          {brand.brandName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -457,10 +485,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Textarea
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={field.onChange}
                     disabled={loading}
-                    placeholder="Product description"
-                    {...field}
                   />
                 </FormControl>
                 <FormMessage />

@@ -10,6 +10,7 @@ import categoryRoutes from "./api/routes/category.route.js";
 import productRoutes from "./api/routes/product.route.js";
 import settingRoutes from "./api/routes/setting.route.js";
 import bannerRoutes from "./api/routes/banner.route.js";
+import brandRoutes from "./api/routes/brand.route.js";
 import featuredProductRoutes from "./api/routes/featuredProduct.route.js";
 import categoryProductRoutes from "./api/routes/categoryProduct.route.js";
 import specialCategoryRotues from "./api/routes/category/specialCategory.route.js";
@@ -63,6 +64,7 @@ app.listen(port, () => {
 app.use(`/${API_V}/auth`, authRoutes);
 app.use(`/${API_V}/setting`, settingRoutes);
 app.use(`/${API_V}/banner`, bannerRoutes);
+app.use(`/${API_V}/brand`, brandRoutes);
 
 app.use(`/${API_V}/category`, categoryRoutes);
 app.use(`/${API_V}/special-category`, specialCategoryRotues);
