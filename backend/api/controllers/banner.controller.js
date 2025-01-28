@@ -1,11 +1,8 @@
 import Banner from "../models/banner.model.js";
+import { uploadToCloudinary } from "../utils/cloudinaryUpload.js";
 import { errorHandler } from "../utils/error.js";
 
 export const createBanner = async (req, res, next) => {
-  // if (!req.admin) {
-  //   return next(errorHandler(403, "You are not allowed to create a banner"));
-  // }
-
   try {
     const {
       title,
@@ -26,27 +23,18 @@ export const createBanner = async (req, res, next) => {
     }
 
     if (!image) {
-      return next(
-        errorHandler(400, "Title and at least one image URL is required")
-      );
+      return next(errorHandler(400, "Image is required"));
     }
 
-    // const existingBannerOrder = await Banner.find({ displayOrder });
-
-    // if (existingBannerOrder == displayOrder) {
-    //   return next(
-    //     errorHandler(
-    //       400,
-    //       "Banner with this order value already exist, Please change position"
-    //     )
-    //   );
-    // }
+    const imageUrl = await uploadToCloudinary(image, {
+      folder: `store/${storeId}/banners`,
+    });
 
     const newBanner = new Banner({
       storeId,
       title,
       subTitle,
-      image,
+      image: imageUrl,
       buttonText,
       buttonLink,
       bannerPosition,

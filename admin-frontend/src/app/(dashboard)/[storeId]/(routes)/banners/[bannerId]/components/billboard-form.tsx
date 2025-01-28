@@ -60,6 +60,23 @@ export const BannerForm: React.FC<BannerFormProps> = ({ initialData }) => {
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    initialData?.image || null
+  );
+
+  const handleImageChange = (file: File) => {
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setImagePreview(base64String); // Display preview
+      form.setValue("image", base64String); // Set Base64 string in the form
+    };
+
+    if (file) {
+      reader.readAsDataURL(file); // Convert to Base64
+    }
+  };
 
   const title = initialData ? "Edit Banner" : "Create Banner";
   const description = initialData ? "Edit banner details" : "Add a new banner";

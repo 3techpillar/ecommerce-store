@@ -14,6 +14,7 @@ import brandRoutes from "./api/routes/brand.route.js";
 import featuredProductRoutes from "./api/routes/featuredProduct.route.js";
 import categoryProductRoutes from "./api/routes/categoryProduct.route.js";
 import specialCategoryRotues from "./api/routes/category/specialCategory.route.js";
+import cmsRoutes from "./api/routes/cms.route.js";
 import couponRoutes from "./api/routes/coupon.route.js";
 import shippingRoutes from "./api/routes/shipping.route.js";
 import salesRoutes from "./api/routes/salesOrder.route.js";
@@ -23,6 +24,7 @@ import userRoutes from "./api/routes/user/user.route.js";
 import addressRoutes from "./api/routes/user/address.route.js";
 import cartRoutes from "./api/routes/cart.route.js";
 import wishlistRoutes from "./api/routes/user/wishlist.route.js";
+import recentViewRoutes from "./api/routes/user/recentView.route.js";
 
 import orderRoutes from "./api/routes/order.route.js";
 
@@ -69,6 +71,8 @@ app.use(`/${API_V}/brand`, brandRoutes);
 app.use(`/${API_V}/category`, categoryRoutes);
 app.use(`/${API_V}/special-category`, specialCategoryRotues);
 
+app.use(`/${API_V}/cms`, cmsRoutes);
+
 app.use(`/${API_V}/product`, productRoutes);
 app.use(`/${API_V}/featured`, featuredProductRoutes);
 app.use(`/${API_V}/category-product`, categoryProductRoutes);
@@ -81,6 +85,7 @@ app.use(`/${API_V}/user`, userRoutes);
 app.use(`/${API_V}/address`, addressRoutes);
 app.use(`/${API_V}/cart`, cartRoutes);
 app.use(`/${API_V}/wishlist`, wishlistRoutes);
+app.use(`/${API_V}/recent-view`, recentViewRoutes);
 
 app.use(`/${API_V}/order`, orderRoutes);
 

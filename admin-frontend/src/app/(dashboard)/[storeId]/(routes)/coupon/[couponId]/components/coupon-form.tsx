@@ -11,7 +11,7 @@ import { format } from "date-fns";
 import api from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Form,
   FormControl,
@@ -37,7 +37,8 @@ const formSchema = z.object({
   expires: z.string().min(1, "Coupon expires is required"),
   discountType: z.enum(["flat", "percentage"]),
   discount: z.number().min(0, "Coupon discount is required"),
-  minPrice: z.number().min(0, "Minimum price must be a positive number"),
+  minPrice: z.number().min(0).optional(),
+  maxPrice: z.number().min(0).optional(),
   isActive: z.boolean(),
 });
 
@@ -73,15 +74,19 @@ export const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
           expires: "",
           discount: 0,
           minPrice: 0,
+          maxPrice: undefined,
           isActive: true,
         },
   });
+
+  const discountType = form.watch("discountType");
 
   const onSubmit = async (values: CouponFormValues) => {
     try {
       setLoading(true);
       const formData = {
         ...values,
+        ...(values.discountType === "flat" && { maxPrice: undefined }),
         storeId: params.storeId,
       };
 
@@ -116,6 +121,12 @@ export const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
       setOpen(false);
     }
   };
+
+  useEffect(() => {
+    if (discountType === "flat") {
+      form.setValue("maxPrice", undefined);
+    }
+  }, [discountType, form]);
 
   return (
     <>
@@ -236,6 +247,27 @@ export const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
                       type="number"
                       disabled={loading}
                       placeholder="Minimum price"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(parseFloat(e.target.value))
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxPrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Maximum Price</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled={loading || discountType === "flat"}
+                      placeholder="Maximum price"
                       {...field}
                       onChange={(e) =>
                         field.onChange(parseFloat(e.target.value))

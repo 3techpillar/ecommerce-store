@@ -6,6 +6,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
+import Image from "@tiptap/extension-image";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +22,7 @@ import {
   Undo,
   Redo,
 } from "lucide-react";
+import ImageUploadButton from "@/components/Editor-image-upload";
 
 interface RichTextEditorProps {
   value: string;
@@ -78,6 +80,7 @@ const RichTextEditor = ({
       Placeholder.configure({
         placeholder,
       }),
+      Image,
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -107,6 +110,18 @@ const RichTextEditor = ({
 
     editor.chain().focus().setLink({ href: url }).run();
   }, [editor]);
+
+  const addImage = useCallback(
+    (url: string) => {
+      if (!editor) return;
+      editor
+        .chain()
+        .focus()
+        .insertContent(`<img src="${url}" alt="Uploaded image" />`)
+        .run();
+    },
+    [editor]
+  );
 
   const toggleHeading = useCallback(
     (level: 1 | 2) => {
@@ -200,6 +215,7 @@ const RichTextEditor = ({
             >
               <ListOrdered className="h-4 w-4" />
             </MenuButton>
+            <ImageUploadButton disabled={disabled} onUpload={addImage} />
           </div>
           <div className="flex items-center gap-1">
             <MenuButton

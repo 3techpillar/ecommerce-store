@@ -77,6 +77,8 @@ interface ProductFormProps {
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
+  console.log("product form ", initialData);
+
   const params = useParams();
   const router = useRouter();
 
@@ -126,6 +128,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
       ? {
           ...initialData,
           images: initialData.images || [],
+          brand: initialData.brand._id,
+          category: initialData.category._id,
           offers: initialData.price?.offers || [],
         }
       : {

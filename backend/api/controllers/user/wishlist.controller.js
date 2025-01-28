@@ -111,9 +111,7 @@ export const getWishlist = async (req, res, next) => {
     const wishlist = await Wishlist.findOne({ user: userId }).populate([
       {
         path: "products",
-        populate: {
-          path: "price",
-        },
+        populate: [{ path: "price" }, { path: "brand" }],
       },
     ]);
     if (!wishlist) {

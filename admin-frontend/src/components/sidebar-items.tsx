@@ -15,6 +15,8 @@ import {
   Truck,
   ShoppingCart,
   Feather,
+  NotebookText,
+  ContainerIcon,
 } from "lucide-react";
 
 import {
@@ -30,6 +32,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import { Container } from "postcss";
 
 const SidebarItems = () => {
   const params = useParams();
@@ -99,7 +102,12 @@ const SidebarItems = () => {
     {
       title: "Shipping",
       href: `/${params.storeId}/shipping`,
-      icon: <ShoppingCart size={18} />,
+      icon: <ContainerIcon size={18} />,
+    },
+    {
+      title: "CMS Pages",
+      href: `/${params.storeId}/cms`,
+      icon: <NotebookText size={18} />,
     },
     {
       title: "Settings",

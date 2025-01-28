@@ -118,9 +118,32 @@ export const addToCart = async (req, res, next) => {
     cart.totalPriceAfterDiscount = cart.totalPrice;
     cart.netPrice = cart.totalPrice;
 
-    // Apply coupon discount if a coupon is already applied
-    if (cart.appliedCoupon && cart.couponDiscountAmount) {
-      cart.netPrice = Math.max(0, cart.totalPrice - cart.couponDiscountAmount);
+    if (cart.appliedCoupon) {
+      const coupon = await Coupon.findById(cart.appliedCoupon);
+
+      if (
+        !coupon ||
+        !coupon.isActive ||
+        coupon.expires < new Date() ||
+        cart.totalPrice < coupon.minPrice
+      ) {
+        cart.appliedCoupon = null;
+        cart.couponDiscountAmount = 0;
+      } else {
+        const couponDiscountAmount =
+          coupon.discountType === "percentage"
+            ? (cart.totalPrice * coupon.discount) / 100
+            : coupon.discount;
+
+        cart.couponDiscountAmount = Math.min(
+          couponDiscountAmount,
+          cart.totalPrice - cart.discount
+        );
+
+        cart.netPrice = cart.totalPrice - cart.couponDiscountAmount;
+      }
+    } else {
+      cart.couponDiscountAmount = 0;
     }
 
     // Save the cart
@@ -178,12 +201,51 @@ export const applyCoupon = async (req, res, next) => {
       );
     }
 
+    //remove the previous one when new coupon applies
+    if (cart.appliedCoupon) {
+      const previousCoupon = await Coupon.findById(cart.appliedCoupon);
+      if (previousCoupon) {
+        let previousDiscountAmount = 0;
+
+        if (previousCoupon.discountType === "percentage") {
+          // Calculate percentage discount
+          const percentageDiscount = Math.round(
+            (cart.totalPriceBeforeDiscount * previousCoupon.discount) / 100
+          );
+
+          // If max price exists and percentage discount exceeds it, use max price
+          if (
+            previousCoupon.maxPrice &&
+            percentageDiscount > previousCoupon.maxPrice
+          ) {
+            previousDiscountAmount = previousCoupon.maxPrice;
+          } else {
+            previousDiscountAmount = percentageDiscount;
+          }
+        } else {
+          // For flat discount, simply use the discount amount
+          previousDiscountAmount = previousCoupon.discount;
+        }
+
+        // Revert the previous discount
+        cart.totalPriceAfterDiscount += previousDiscountAmount;
+      }
+    }
+
     let couponDiscountAmount = 0;
     if (coupon.discountType === "percentage") {
-      couponDiscountAmount = Math.round(
+      const percentageDiscount = Math.round(
         (cart.totalPriceAfterDiscount * coupon.discount) / 100
       );
-    } else if (coupon.discountType === "flat") {
+
+      // If max price exists and percentage discount exceeds it, use max price
+      if (coupon.maxPrice && percentageDiscount > coupon.maxPrice) {
+        couponDiscountAmount = coupon.maxPrice;
+      } else {
+        couponDiscountAmount = percentageDiscount;
+      }
+    } else {
+      // For flat discount, simply use the discount amount
       couponDiscountAmount = coupon.discount;
     }
 
@@ -263,9 +325,11 @@ export const removeFromCart = async (req, res, next) => {
       return next(errorHandler(404, "Product not found in cart"));
     }
 
+    // Remove the product from the cart
     cart.items.splice(productIndex, 1);
 
     if (cart.items.length > 0) {
+      // Recalculate cart totals
       const totals = cart.items.reduce(
         (acc, item) => {
           const itemPrice =
@@ -284,6 +348,7 @@ export const removeFromCart = async (req, res, next) => {
       cart.totalPrice = totals.totalPrice;
       cart.discount = totals.totalDiscount;
 
+      // Update coupon logic based on new totals
       if (cart.appliedCoupon) {
         const coupon = await Coupon.findById(cart.appliedCoupon);
 
@@ -314,6 +379,7 @@ export const removeFromCart = async (req, res, next) => {
         cart.totalPrice - cart.discount - cart.couponDiscountAmount;
       cart.netPrice = cart.totalPriceAfterDiscount;
     } else {
+      // Reset cart values if no items remain
       cart.totalPrice = 0;
       cart.discount = 0;
       cart.couponDiscountAmount = 0;
@@ -322,6 +388,7 @@ export const removeFromCart = async (req, res, next) => {
       cart.appliedCoupon = null;
     }
 
+    // Save the updated cart
     await cart.save();
 
     const updatedCart = await populateCart(cart._id);

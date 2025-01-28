@@ -3,14 +3,33 @@ import { errorHandler } from "../utils/error.js";
 
 export const createCoupon = async (req, res, next) => {
   const { storeId } = req.params;
-  const { code, expires, discountType, discount, minPrice, isActive } =
-    req.body;
+  const {
+    code,
+    expires,
+    discountType,
+    discount,
+    minPrice,
+    maxPrice,
+    isActive,
+  } = req.body;
 
-  if (!code || !expires || !discount) {
+  if (!code || !expires || !discountType || !discount) {
     return next(
-      errorHandler(400, "Code, expiration date, and discount are required")
+      errorHandler(
+        400,
+        "Code, expiration date, discount type, and discount are required"
+      )
     );
   }
+
+  // if (discountType === "percentage" && maxPrice === undefined) {
+  //   return next(
+  //     errorHandler(
+  //       400,
+  //       "maxPrice is required when discountType is 'percentage'"
+  //     )
+  //   );
+  // }
 
   try {
     const existingCoupon = await Coupon.findOne({ code });
@@ -26,6 +45,7 @@ export const createCoupon = async (req, res, next) => {
       discountType,
       discount,
       minPrice,
+      maxPrice,
       isActive,
     });
 
@@ -41,8 +61,15 @@ export const createCoupon = async (req, res, next) => {
 
 export const updateCoupon = async (req, res, next) => {
   const { couponId } = req.params;
-  const { code, expires, discountType, discount, minPrice, isActive } =
-    req.body;
+  const {
+    code,
+    expires,
+    discountType,
+    discount,
+    minPrice,
+    maxPrice,
+    isActive,
+  } = req.body;
 
   try {
     const coupon = await Coupon.findById(couponId);
@@ -50,6 +77,15 @@ export const updateCoupon = async (req, res, next) => {
     if (!coupon) {
       return next(errorHandler(404, "Coupon not found"));
     }
+
+    // if (discountType === "percentage" && maxPrice === undefined) {
+    //   return next(
+    //     errorHandler(
+    //       400,
+    //       "maxPrice is required when discountType is 'percentage'"
+    //     )
+    //   );
+    // }
 
     const updatedCoupon = await Coupon.findByIdAndUpdate(
       couponId,
@@ -60,6 +96,7 @@ export const updateCoupon = async (req, res, next) => {
           discountType: discountType || coupon.discountType,
           discount: discount || coupon.discount,
           minPrice: minPrice || coupon.minPrice,
+          maxPrice: maxPrice || coupon.maxPrice,
           isActive: isActive !== undefined ? isActive : coupon.isActive,
         },
       },
