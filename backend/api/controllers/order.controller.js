@@ -2,6 +2,7 @@ import Order from "../models/order.modal.js";
 import Cart from "../models/cart.modal.js";
 import { errorHandler } from "../utils/error.js";
 import SalesOrder from "../models/salesOrder.model.js";
+import MostPurchasedProduct from "../models/mostPurchased.model.js";
 
 export const createOrder = async (req, res, next) => {
   try {
@@ -40,6 +41,7 @@ export const createOrder = async (req, res, next) => {
 
     const orderItems = cart.items.map((item) => ({
       product: {
+        _id: item.product._id,
         sku: item.product.sku,
         name: item.product.name,
         description: item.product.description,
@@ -112,6 +114,25 @@ export const createOrder = async (req, res, next) => {
     }));
 
     await SalesOrder.insertMany(salesOrders);
+
+    for (const item of orderItems) {
+      let mostPurchasedProduct = await MostPurchasedProduct.findOne({
+        productId: item.product._id,
+        storeId,
+      });
+
+      if (mostPurchasedProduct) {
+        mostPurchasedProduct.purchaseCount += item.quantity;
+      } else {
+        mostPurchasedProduct = new MostPurchasedProduct({
+          productId: item.product._id,
+          storeId,
+          purchaseCount: item.quantity,
+        });
+      }
+
+      await mostPurchasedProduct.save();
+    }
 
     await Cart.findOneAndUpdate(
       { user: userId, isActive: true },
@@ -277,22 +298,24 @@ export const getUserOrders = async (req, res, next) => {
       filter.orderStatus = status;
     }
 
-    const orders = await Order.find(filter).populate([
-      {
-        path: "user",
-        select: "name email phone",
-      },
-      {
-        path: "items.product",
-        populate: {
-          path: "price",
+    const orders = await Order.find(filter)
+      .populate([
+        {
+          path: "user",
+          select: "name email phone",
         },
-      },
-      {
-        path: "shippingAddress",
-        select: "street city state country zipCode",
-      },
-    ]);
+        {
+          path: "items.product",
+          populate: {
+            path: "price",
+          },
+        },
+        {
+          path: "shippingAddress",
+          select: "street city state country zipCode",
+        },
+      ])
+      .sort({ createdAt: -1 });
 
     if (!orders || orders.length === 0) {
       return next(errorHandler(201, "Orders not found"));

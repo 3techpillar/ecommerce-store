@@ -19,8 +19,8 @@ router.put("/update/:id", verifyToken, updateSpecialCategory);
 
 router.delete("/delete/:id", deleteSpecialCategory);
 
+router.get("/get-active/:storeId", getSpecialCategory);
 router.get("/get-all/:storeId", getAllSpecialCategory);
-router.get("get-active/:storeId", getSpecialCategory);
 router.get("/get-category/:id", getSpecialCategoryById);
 
 export default router;

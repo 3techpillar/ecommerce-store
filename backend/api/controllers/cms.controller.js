@@ -12,7 +12,16 @@ const generateSlug = (title) => {
 export const createCms = async (req, res, next) => {
   try {
     const { storeId } = req.params;
-    const { title, subtitle, description, image, isActive } = req.body;
+    const {
+      title,
+      subtitle,
+      description,
+      image,
+      isActive,
+      metaTitle,
+      metaKeywords,
+      metaDescription,
+    } = req.body;
 
     const slug = generateSlug(title);
 
@@ -29,6 +38,9 @@ export const createCms = async (req, res, next) => {
       description,
       image,
       isActive,
+      metaTitle,
+      metaKeywords,
+      metaDescription,
     });
 
     res.status(201).json({
@@ -45,7 +57,16 @@ export const createCms = async (req, res, next) => {
 export const updateCms = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, subtitle, description, image, isActive } = req.body;
+    const {
+      title,
+      subtitle,
+      description,
+      image,
+      isActive,
+      metaTitle,
+      metaKeywords,
+      metaDescription,
+    } = req.body;
 
     const cms = await Cms.findById(id);
     if (!cms) {
@@ -66,6 +87,9 @@ export const updateCms = async (req, res, next) => {
         description: description || cms.description,
         image: image || cms.image,
         isActive: isActive !== undefined ? isActive : cms.isActive,
+        metaTitle: metaTitle || cms.metaTitle,
+        metaKeywords: metaKeywords || cms.metaKeywords,
+        metaDescription: metaDescription || cms.metaDescription,
       },
       { new: true, runValidators: true }
     );

@@ -17,6 +17,7 @@ import {
   Feather,
   NotebookText,
   ContainerIcon,
+  ChartNoAxesCombined,
 } from "lucide-react";
 
 import {
@@ -32,7 +33,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
-import { Container } from "postcss";
 
 const SidebarItems = () => {
   const params = useParams();
@@ -108,6 +108,11 @@ const SidebarItems = () => {
       title: "CMS Pages",
       href: `/${params.storeId}/cms`,
       icon: <NotebookText size={18} />,
+    },
+    {
+      title: "Analytics",
+      href: `/${params.storeId}/analytics`,
+      icon: <ChartNoAxesCombined size={18} />,
     },
     {
       title: "Settings",

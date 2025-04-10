@@ -101,13 +101,27 @@ export const getSpecialCategory = async (req, res, next) => {
     const specialCategories = await SpecialCategory.find({
       storeId,
       isActive: true,
+    }).populate({
+      path: "selectedProducts",
+      populate: [
+        {
+          path: "brand",
+          select: "brandName",
+        },
+        {
+          path: "price",
+        },
+      ],
     });
 
     if (!specialCategories) {
       return next(errorHandler(404, "Category not found"));
     }
 
-    res.status(200).json(specialCategories);
+    res.status(200).json({
+      message: "Special category fethed successfully",
+      specialCategories,
+    });
   } catch (error) {
     console.log("GET_SPECIAL_CATEGORY", error);
     next(error);

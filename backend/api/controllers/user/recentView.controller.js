@@ -1,4 +1,6 @@
+import MostVisitedProduct from "../../models/mostVisited.model.js";
 import RecentView from "../../models/user/recentView.model.js";
+import Product from "../../models/product/product.model.js";
 import { errorHandler } from "../../utils/error.js";
 
 export const addRecentView = async (req, res, next) => {
@@ -33,6 +35,29 @@ export const addRecentView = async (req, res, next) => {
       });
     }
 
+    const product = await Product.findById(productId);
+    if (!product) {
+      return next(errorHandler(404, "Product not found."));
+    }
+    const storeId = product.storeId;
+
+    let mostVisitedProducts = await MostVisitedProduct.findOne({
+      productId,
+      storeId,
+    });
+
+    if (mostVisitedProducts) {
+      mostVisitedProducts.visitCount += 1;
+    } else {
+      mostVisitedProducts = new MostVisitedProduct({
+        productId,
+        storeId,
+        visitCount: 1,
+      });
+    }
+
+    await mostVisitedProducts.save();
+
     res
       .status(200)
       .json({ message: "Product added to recent views.", recentView });
@@ -66,7 +91,10 @@ export const getRecentViews = async (req, res, next) => {
       .exec();
 
     if (!recentView || recentView.products.length === 0) {
-      return next(errorHandler(400, "No recently viewed products found."));
+      return res.status(200).json({
+        message: "No recently viewed products found.",
+        products: [],
+      });
     }
 
     res.status(200).json({

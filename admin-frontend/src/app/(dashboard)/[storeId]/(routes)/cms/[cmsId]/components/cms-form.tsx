@@ -25,6 +25,7 @@ import AlertModal from "@/modals/alert-modal";
 import { Switch } from "@/components/ui/switch";
 import ImageUpload from "@/components/ui/image-upload";
 import RichTextEditor from "../../../products/[productId]/components/text-editor";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
   title: z.string().nullable().optional(),
@@ -32,6 +33,9 @@ const formSchema = z.object({
   image: z.string().min(1, "Image is required"),
   description: z.string().min(1, "Description is required"),
   isActive: z.boolean().default(true),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  metaKeywords: z.string().optional(),
 });
 
 type CmsFormValues = z.infer<typeof formSchema>;
@@ -62,6 +66,9 @@ export const CmsForm: React.FC<CmsFormProps> = ({ initialData }) => {
       image: "",
       description: "",
       isActive: true,
+      metaTitle: "",
+      metaKeywords: "",
+      metaDescription: "",
     },
   });
 
@@ -156,7 +163,7 @@ export const CmsForm: React.FC<CmsFormProps> = ({ initialData }) => {
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Enter banner title"
+                      placeholder="Enter page title"
                       {...field}
                       value={field.value || ""}
                     />
@@ -174,7 +181,7 @@ export const CmsForm: React.FC<CmsFormProps> = ({ initialData }) => {
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Enter banner subtitle"
+                      placeholder="Enter page subtitle"
                       {...field}
                       value={field.value || ""}
                     />
@@ -224,6 +231,65 @@ export const CmsForm: React.FC<CmsFormProps> = ({ initialData }) => {
               )}
             />
           </div>
+          <Separator />
+          <Heading title="Meta Data" description="For SEO Optimisation" />
+          <div className="grid grid-cols-2 gap-8">
+            <FormField
+              control={form.control}
+              name="metaTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Meta Title</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter seo title"
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="metaKeywords"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Meta Keywords</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter seo keywords"
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <FormField
+            control={form.control}
+            name="metaDescription"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Meta Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    disabled={loading}
+                    placeholder="Enter seo description"
+                    rows={6}
+                    {...field}
+                    value={field.value || ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <Button disabled={loading} className="ml-auto" type="submit">
             {action}

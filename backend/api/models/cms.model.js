@@ -31,10 +31,21 @@ const cmsSchema = new Schema(
       type: String,
       default: null,
     },
-
     isActive: {
       type: Boolean,
       default: true,
+    },
+    metaTitle: {
+      type: String,
+      default: null,
+    },
+    metaDescription: {
+      type: String,
+      default: null,
+    },
+    metaKeywords: {
+      type: String,
+      default: null,
     },
   },
   {

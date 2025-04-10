@@ -19,6 +19,9 @@ import couponRoutes from "./api/routes/coupon.route.js";
 import shippingRoutes from "./api/routes/shipping.route.js";
 import salesRoutes from "./api/routes/salesOrder.route.js";
 
+import mostVisitedRoutes from "./api/routes/mostVisited.route.js";
+import mostPurchasedRoutes from "./api/routes/mostPurchased.route.js";
+
 //user
 import userRoutes from "./api/routes/user/user.route.js";
 import addressRoutes from "./api/routes/user/address.route.js";
@@ -79,6 +82,9 @@ app.use(`/${API_V}/category-product`, categoryProductRoutes);
 app.use(`/${API_V}/coupon`, couponRoutes);
 app.use(`/${API_V}/shipping`, shippingRoutes);
 app.use(`/${API_V}/sales-order`, salesRoutes);
+
+app.use(`/${API_V}/most-visited`, mostVisitedRoutes);
+app.use(`/${API_V}/most-purchased`, mostPurchasedRoutes);
 
 //user
 app.use(`/${API_V}/user`, userRoutes);
