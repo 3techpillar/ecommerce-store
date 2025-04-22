@@ -48,9 +48,7 @@ mongoose
 const app = express();
 
 const corsOptions = {
-  origin: ["http://localhost:3001", "http://localhost:3002"],
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  origin: [process.env.ADMIN_FRONTEND_URL, "http://localhost:3002"],
   credentials: true,
 };
 
