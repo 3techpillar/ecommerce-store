@@ -1,0 +1,28 @@
+name: Deploy on VPS
+
+on:
+  push:
+    branches: -main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: deploy on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.SSH_HOST}}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+          script: |
+            cd /root/ecommerce-store
+            git pull
+            cd admin-frontend
+            npm install 
+            npm run build
+            cd ../backend
+            npm install
+            pm2 restart fe-shop
+            pm2 restart be-shop
