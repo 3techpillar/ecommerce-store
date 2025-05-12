@@ -86,9 +86,10 @@ export const deleteFeaturedProduct = async (req, res, next) => {
 export const getAllFeaturedProducts = async (req, res, next) => {
   try {
     const { storeId } = req.params;
-    const featuredProducts = await FeaturedSection.find({ storeId }).populate(
-      "selectedProducts"
-    );
+    const featuredProducts = await FeaturedSection.find({ storeId }).populate({
+      path: "selectedProducts",
+      populate: [{ path: "price" }, { path: "category" }, { path: "brand" }],
+    });
 
     if (!featuredProducts) {
       return next(errorHandler(404, "Products not found"));
