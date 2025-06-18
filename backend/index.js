@@ -48,7 +48,7 @@ mongoose
 const app = express();
 
 const corsOptions = {
-  origin: [process.env.ADMIN_FRONTEND_URL, "http://localhost:3002"],
+  origin: [process.env.ADMIN_FRONTEND_URL, process.env.USER_FRONTEND_URL],
   credentials: true,
 };
 
