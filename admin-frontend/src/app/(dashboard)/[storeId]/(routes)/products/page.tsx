@@ -20,7 +20,9 @@ interface Product {
   thumbnail: string;
   sku: string;
   name: string;
-  price: number;
+  price: {
+    price: number;
+  };
   category: { _id: string; name: string };
 }
 
@@ -54,21 +56,21 @@ const Products = () => {
     fetchStore();
   }, [user, params.storeId, router]);
 
-  const fetchProducts = async () => {
-    try {
-      const response = await api.get(`/v1/product/${params.storeId}`);
-
-      setProducts(response.data);
-    } catch (error) {
-      console.log("Error while fetching products", error);
-    }
-  };
-
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    const fetchProducts = async () => {
+      try {
+        const response = await api.get(`/v1/product/${params.storeId}`);
 
-  const formattedCategories: ProductColumn[] = products.map((item) => ({
+        setProducts(response.data);
+      } catch (error) {
+        console.log("Error while fetching products", error);
+      }
+    };
+
+    fetchProducts();
+  }, [params.storeId]);
+
+  const formattedProducts: ProductColumn[] = products.map((item) => ({
     id: item._id,
     thumbnail: item.thumbnail,
     sku: item.sku,
@@ -76,14 +78,14 @@ const Products = () => {
     price: store?.currency
       ? formatPrice(item.price.price, store.currency)
       : item.price.price,
-    category: item.category.name,
-    categoryId: item.category._id,
+    category: item.category?.name || "uncategorizes",
+    categoryId: item.category?._id || "",
   }));
 
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <ProductClient data={formattedCategories} />
+        <ProductClient data={formattedProducts} />
       </div>
     </div>
   );
