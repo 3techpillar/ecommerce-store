@@ -6,6 +6,7 @@ import cors from "cors";
 
 //admin
 import authRoutes from "./api/routes/auth.route.js";
+import googleRoutes from "./api/routes/user/google.route.js";
 import categoryRoutes from "./api/routes/category.route.js";
 import productRoutes from "./api/routes/product.route.js";
 import settingRoutes from "./api/routes/setting.route.js";
@@ -65,6 +66,7 @@ app.listen(port, () => {
 
 //admin
 app.use(`/${API_V}/auth`, authRoutes);
+app.use(`/api/auth`, googleRoutes);
 app.use(`/${API_V}/setting`, settingRoutes);
 app.use(`/${API_V}/banner`, bannerRoutes);
 app.use(`/${API_V}/brand`, brandRoutes);
