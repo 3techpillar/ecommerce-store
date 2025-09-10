@@ -270,7 +270,6 @@ export const getCategoriesByStoreId = async (req, res, next) => {
   try {
     const { storeId } = req.params;
     const categories = await Category.find({ storeId });
-
     res.status(200).json({ categories });
   } catch (error) {
     console.error("Error fetching categories:", error);

@@ -102,7 +102,7 @@ const ProductImageUpload: React.FC<ImageUploadProps> = ({
           return (
             <Button type="button" disabled={disabled} onClick={onClick}>
               <ImagePlus className="h-4 w-4 mr-2" />
-              Upload Image
+              Upload Image and  Video
             </Button>
           );
         }}
