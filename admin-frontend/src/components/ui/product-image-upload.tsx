@@ -5,6 +5,7 @@ import { CldUploadWidget } from "next-cloudinary";
 import { Button } from "./button";
 import { ImagePlus, Trash } from "lucide-react";
 import Image from "next/image";
+import { getAssetType } from "@/lib/getAssetType";
 
 interface ImageUploadProps {
   disabled?: boolean;
@@ -22,6 +23,8 @@ const ProductImageUpload: React.FC<ImageUploadProps> = ({
   const [images, setImages] = useState(value);
   const [isMounted, setIsMounted] = useState(false);
 
+  console.log("images", images)
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -29,7 +32,6 @@ const ProductImageUpload: React.FC<ImageUploadProps> = ({
   const onUpload = (result: any) => {
     const newImageUrl = result.info.secure_url;
     console.log("Uploading image:", newImageUrl);
-
     // Update both local state and parent state with new image URL
     setImages((prevImages) => {
       const updatedImages = [...prevImages, newImageUrl];
@@ -37,6 +39,8 @@ const ProductImageUpload: React.FC<ImageUploadProps> = ({
       return updatedImages;
     });
   };
+
+  
 
   const handleRemoveImage = (url: string) => {
     // Update both local state and parent state to remove the image URL
@@ -55,8 +59,11 @@ const ProductImageUpload: React.FC<ImageUploadProps> = ({
   return (
     <div>
       <div className="mb-4 flex items-center gap-4">
-        {images.map((url) => (
-          <div
+        {images.map((url) => {
+           const type = getAssetType(url)
+           console.log("type", type)
+          return (
+            <div
             key={url}
             className="relative w-[200px] h-[200px] overflow-hidden"
           >
@@ -69,9 +76,22 @@ const ProductImageUpload: React.FC<ImageUploadProps> = ({
                 <Trash />
               </Button>
             </div>
-            <Image fill className="object-cover" alt="Image" src={url} />
+            {type === "image" && (
+              <Image fill className="object-cover" alt="Image" src={url} />
+            )}
+            {type === "video" && (
+              <video
+                className="object-cover w-full h-full rounded-md"
+                src={url}
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
           </div>
-        ))}
+          )
+        })}
       </div>
       <CldUploadWidget onSuccess={onUpload} uploadPreset="tjjjrspe">
         {({ open }) => {
@@ -82,7 +102,7 @@ const ProductImageUpload: React.FC<ImageUploadProps> = ({
           return (
             <Button type="button" disabled={disabled} onClick={onClick}>
               <ImagePlus className="h-4 w-4 mr-2" />
-              Upload Image
+              Upload Image and  Video
             </Button>
           );
         }}

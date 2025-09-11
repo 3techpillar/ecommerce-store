@@ -95,23 +95,23 @@ const FilterProduct: React.FC<FilterProductProps> = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="default">
+        <Button variant="outline" className="flex items-center gap-2">
           <ArrowDownWideNarrow className="mr-2 h-4 w-4" />
           Filter
           {(selectedCategories.length > 0 ||
             priceRange[0] !== minPrice ||
             priceRange[1] !== maxPrice) && (
-            <span className="ml-2 h-2 w-2 rounded-full bg-white" />
+            <span className="ml-2 h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
           )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-[300px] p-4 bg-white shadow-xl rounded-lg"
+        className="w-[300px] bg-white border-gray-200 shadow-lg rounded-lg p-4 space-y-6"
       >
         <div className="space-y-4">
-          <h4 className="font-semibold text-sm">Categories</h4>
-          <div className="grid grid-cols-2 gap-2">
+          <h4 className="font-semibold text-sm mb-3 text-gray-700">Categories</h4>
+          <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2">
             {categories.map((category) => (
               <div key={category._id} className="flex items-center space-x-2">
                 <Checkbox
@@ -121,7 +121,7 @@ const FilterProduct: React.FC<FilterProductProps> = ({
                 />
                 <label
                   htmlFor={category._id}
-                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm cursor-pointer text-gray-600 hover:text-gray-800"
                 >
                   {category.name}
                 </label>
@@ -131,7 +131,7 @@ const FilterProduct: React.FC<FilterProductProps> = ({
         </div>
 
         <div className="my-5">
-          <h4 className="font-semibold text-sm">Price Range</h4>
+          <h4 className="font-semibold text-sm mb-3 text-gray-700">Price Range</h4>
           <div className="pt-4">
             <CustomSlider
               min={minPrice}
@@ -142,7 +142,7 @@ const FilterProduct: React.FC<FilterProductProps> = ({
               className="w-full"
             />
           </div>
-          <div className="flex justify-between text-sm mt-2">
+          <div className="flex justify-between text-sm mt-3 text-gray-600">
             <span>{priceRange[0]}</span>
             <span>{priceRange[1]}</span>
           </div>
@@ -151,7 +151,7 @@ const FilterProduct: React.FC<FilterProductProps> = ({
         <Button
           onClick={handleResetFilter}
           variant="outline"
-          className="w-full mt-4"
+          className="w-full hover:bg-gray-50 transition-colors"
         >
           Reset Filters
         </Button>

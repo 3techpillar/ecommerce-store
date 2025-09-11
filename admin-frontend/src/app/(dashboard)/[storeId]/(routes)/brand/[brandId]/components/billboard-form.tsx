@@ -115,12 +115,13 @@ export const BrandForm: React.FC<BrandFormProps> = ({ initialData }) => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 w-full"
         >
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           <FormField
             control={form.control}
             name="brandName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Brand name</FormLabel>
+                <FormLabel>Brand name Ranvijay Singh</FormLabel>
                 <FormControl>
                   <Input
                     disabled={loading}
@@ -132,7 +133,7 @@ export const BrandForm: React.FC<BrandFormProps> = ({ initialData }) => {
               </FormItem>
             )}
           />
-
+</div>
           <Button disabled={loading} className="ml-auto" type="submit">
             {action}
           </Button>

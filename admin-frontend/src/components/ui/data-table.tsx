@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-
 import {
   ColumnDef,
   SortingState,
@@ -66,17 +65,20 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div>
-      <div className="flex items-center py-4">
+    <div className="flex flex-col gap-4 p-4">
+      {/* Search Input */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <Input
           placeholder="Search..."
           value={globalFilter}
           onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-sm"
+          className="w-full sm:w-64"
         />
       </div>
-      <div className="rounded-md border">
-        <Table>
+
+      {/* Table */}
+      <div className="overflow-x-auto rounded-md border">
+        <Table className="min-w-[600px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -94,28 +96,22 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() ? "selected" : undefined}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -123,7 +119,9 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+
+      {/* Pagination */}
+      <div className="flex flex-col sm:flex-row sm:justify-end sm:space-x-2 gap-2">
         <Button
           variant="outline"
           size="sm"

@@ -296,7 +296,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               )}
             />
           </div>
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FormField
               control={form.control}
               name="name"
@@ -482,80 +482,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               )}
             />
           </div>
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <RichTextEditor
-                    value={field.value}
-                    onChange={field.onChange}
-                    disabled={loading}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div>
-            <h2 className="text-lg font-medium mb-4">Attributes</h2>
-            {attributeFields.map((field, index) => (
-              <div key={field.id} className="flex items-end gap-4 mb-4">
-                <FormField
-                  control={form.control}
-                  name={`attributes.${index}.key`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Key</FormLabel>
-                      <FormControl>
-                        <Input
-                          disabled={loading}
-                          {...field}
-                          placeholder="Attribute Key"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`attributes.${index}.value`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Value</FormLabel>
-                      <FormControl>
-                        <Input
-                          disabled={loading}
-                          {...field}
-                          placeholder="Attribute Value"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => removeAttribute(index)}
-                  disabled={loading}
-                >
-                  Remove
-                </Button>
-              </div>
-            ))}
-            <Button
-              type="button"
-              onClick={() => appendAttribute({ key: "", value: "" })}
-              disabled={loading}
-            >
-              Add Attribute
-            </Button>
-          </div>
-          <div>
+
+           <div>
             <h2 className="text-lg font-medium mb-4">Offers</h2>
             {offerFields.map((field, index) => (
               <div key={field.id} className="flex items-end gap-4 mb-4">
@@ -643,6 +571,80 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               Add Offer
             </Button>
           </div>
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={loading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div>
+            <h2 className="text-lg font-medium mb-4">Attributes</h2>
+            {attributeFields.map((field, index) => (
+              <div key={field.id} className="flex items-end gap-4 mb-4">
+                <FormField
+                  control={form.control}
+                  name={`attributes.${index}.key`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Key</FormLabel>
+                      <FormControl>
+                        <Input
+                          disabled={loading}
+                          {...field}
+                          placeholder="Attribute Key"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`attributes.${index}.value`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Value</FormLabel>
+                      <FormControl>
+                        <Input
+                          disabled={loading}
+                          {...field}
+                          placeholder="Attribute Value"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => removeAttribute(index)}
+                  disabled={loading}
+                >
+                  Remove
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              onClick={() => appendAttribute({ key: "", value: "" })}
+              disabled={loading}
+            >
+              Add Attribute
+            </Button>
+          </div>
+         
           <div>
             <h2 className="text-lg font-medium mb-4">SEO</h2>
             <FormField
