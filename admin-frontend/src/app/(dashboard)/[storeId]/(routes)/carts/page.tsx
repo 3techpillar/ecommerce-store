@@ -82,8 +82,8 @@ const Order = () => {
   }));
 
   return (
-    <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8">
+      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-4 sm:p-6">
         <CartClient data={formattedCarts} />
       </div>
     </div>

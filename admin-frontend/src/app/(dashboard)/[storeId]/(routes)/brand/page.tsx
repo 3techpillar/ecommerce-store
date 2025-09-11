@@ -32,8 +32,8 @@ const Brand = () => {
   }));
 
   return (
-    <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <div className="flex-1 p-4 space-y-6 sm:p-6 md:p-8 pt-6">
         <BrandClient data={formattedBrands} />
       </div>
     </div>

@@ -145,7 +145,7 @@ export const googleLogin = async (req, res, next) => {
         maxAge: 180 * 24 * 60 * 60 * 1000,
         secure: process.env.NODE_ENV === "production",
         path: "/",
-      }).redirect(`http://localhost:3001`);
+      }).redirect(`http://localhost:3002`);
 
 
   } catch (error) {

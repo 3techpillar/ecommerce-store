@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Divide, Plus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -65,19 +65,22 @@ export const ProductClient: React.FC<ProductClientProps> = ({ data }) => {
   };
 
   return (
-    <>
-      <div className="flex items-center justify-between">
+    <div className="p-4 space-y-4">
+      <div className="flex flex-col md:flex-row  md:items-center md:justify-between gap-4">
         <Heading
           title={`Products (${filteredData.length})`}
           description="Manage products for your business"
         />
-        <Button onClick={() => router.push(`/${params.storeId}/products/new`)}>
+        <Button
+          className="w-full md:w-auto"
+          onClick={() => router.push(`/${params.storeId}/products/new`)}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add New
         </Button>
       </div>
       <Separator />
-      <div className="flex items-center justify-end">
+      <div className="flex flex-col items-start md:items-end gap-4">
         <FilterProduct
           onFilterChange={handleFiltersChange}
           minPrice={minPrice}
@@ -85,11 +88,13 @@ export const ProductClient: React.FC<ProductClientProps> = ({ data }) => {
         />
       </div>
       <Separator />
-      <DataTable
-        columns={columns}
-        data={filteredData}
-        searchableColumns={["name", "sku"]}
-      />
-    </>
+      <div className="overflow-x-auto">
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          searchableColumns={["name", "sku"]}
+        />
+      </div>
+    </div>
   );
 };
