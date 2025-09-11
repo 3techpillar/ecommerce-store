@@ -16,9 +16,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={` antialiased`}>
+       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
+      <body className={` antialiased min-h-screen flex flex-col bg-background text-foreground bg-gray-50`}>
         <ModalProvider />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1 p-8">
         {children}
+        </div>
         <Toaster richColors position="top-right" />
       </body>
     </html>
