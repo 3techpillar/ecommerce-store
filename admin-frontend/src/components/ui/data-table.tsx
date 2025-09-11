@@ -66,8 +66,8 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div>
-      <div className="flex items-center py-4">
+    <div className="flex flex-col gap-4">
+      <div className="w-full flex flex-col sm:flex-row sm:items-center py-4 gap-4">
         <Input
           placeholder="Search..."
           value={globalFilter}
@@ -75,7 +75,7 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
       </div>
-      <div className="rounded-md border">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -123,7 +123,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex flex-col sm:flex-row sm:justify-end sm:space-x-2 py-4">
         <Button
           variant="outline"
           size="sm"

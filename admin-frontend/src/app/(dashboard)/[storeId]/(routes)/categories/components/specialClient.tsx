@@ -20,7 +20,7 @@ export const SpecialClient: React.FC<CategoryClientProps> = ({ data }) => {
 
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
         <Heading
           title={`Special categories (${data.length})`}
           description="Manage special categories for your business"
