@@ -23,5 +23,5 @@ jobs:
             npm run build
             cd ../backend
             npm install
-            pm2 restart fe-shop
-            pm2 restart be-shop
+            pm2 restart fe-admin-ecommerce
+            pm2 restart be-ecommerce
