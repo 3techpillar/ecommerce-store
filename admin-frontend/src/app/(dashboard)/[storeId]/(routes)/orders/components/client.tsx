@@ -19,7 +19,8 @@ export const OrderClient: React.FC<OrderClientProps> = ({ data }) => {
 
   return (
     <>
-      <div className="flex items-center justify-between">
+     <div className="p-4 sm:p-6 space-y-6 bg-gray-50 min-h-screen">
+       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <Heading
           title={`Orders (${data.length})`}
           description="Manage orders for your business"
@@ -29,8 +30,11 @@ export const OrderClient: React.FC<OrderClientProps> = ({ data }) => {
           Add New
         </Button> */}
       </div>
-      <Separator />
+     <div className="overflow-x-auto bg-white rounded-lg shadow-sm border border-gray-200">
+       <Separator />
       <DataTable columns={columns} data={data} searchableColumns={["_id"]} />
+     </div>
+     </div>
     </>
   );
 };
