@@ -18,13 +18,13 @@ export const BrandClient: React.FC<BrandClientProps> = ({ data }) => {
   const router = useRouter();
   const params = useParams();
   return (
-    <>
-      <div className="flex items-center justify-between">
+     <div className="p-4 sm:p-6 md:p-8 bg-white rounded-lg shadow-sm space-y-6">
+       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <Heading
           title={`Brand (${data.length})`}
           description="Manage brand for your business"
         />
-        <Button onClick={() => router.push(`/${params.storeId}/brand/new`)}>
+        <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white" onClick={() => router.push(`/${params.storeId}/brand/new`)}>
           <Plus className="mr-2 h-4 w-4" />
           Add New
         </Button>
@@ -35,6 +35,6 @@ export const BrandClient: React.FC<BrandClientProps> = ({ data }) => {
         data={data}
         searchableColumns={["brandName"]}
       />
-    </>
+     </div>
   );
 };

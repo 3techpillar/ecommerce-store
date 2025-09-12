@@ -221,7 +221,7 @@ export const CategoryProductForm: React.FC<CategoryProductFormProps> = ({
               )}
             />
             <FormField
-              control={form.control}
+              control={form.control} 
               name="category"
               render={({ field }) => (
                 <FormItem className="sm:col-span-2 lg:col-span-3">

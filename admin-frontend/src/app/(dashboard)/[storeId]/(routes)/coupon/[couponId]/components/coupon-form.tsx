@@ -136,7 +136,7 @@ export const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
         onConfirm={onDelete}
         loading={loading}
       />
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 bg-white rounded-md shadow">
         <Heading title={title} description={description} />
         {initialData && (
           <Button
@@ -150,12 +150,13 @@ export const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
         )}
       </div>
       <Separator />
-      <Form {...form}>
+     <div className="p-4 sm:p-6 bg-white rounded-md shadow space-y-6">
+       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 w-full"
+          className="space-y-8"
         >
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <FormField
               control={form.control}
               name="code"
@@ -282,8 +283,8 @@ export const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
               control={form.control}
               name="isActive"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
+                <FormItem  className="sm:col-span-2 lg:col-span-3">
+                  <div className="flex items-center justify-between rounded-lg border p-4">
                     <FormLabel className="text-base">Active</FormLabel>
                   </div>
                   <FormControl>
@@ -297,11 +298,14 @@ export const CouponForm: React.FC<CouponFormProps> = ({ initialData }) => {
               )}
             />
           </div>
+          <div className="flex justify-end">
           <Button disabled={loading} className="ml-auto" type="submit">
             {action}
           </Button>
+          </div>
         </form>
       </Form>
+     </div>
     </>
   );
 };
