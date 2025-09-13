@@ -39,8 +39,8 @@ const MostVisited = () => {
     }));
 
   return (
-    <div className="space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <Heading
           title={`Most Purchased Products`}
           description="Most purchased products of your business"
