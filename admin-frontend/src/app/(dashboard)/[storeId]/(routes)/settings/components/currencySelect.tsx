@@ -19,13 +19,13 @@ const CurrencySelect: React.FC<CurrencySelectProps> = ({ value, onChange }) => {
 
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full min-w-[150px]">
         <SelectValue placeholder="Select Currency" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="max-h-60 overflow-y-auto">
         {getAll().map((currency) => (
           <SelectItem key={currency.value} value={currency.value}>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-2 py-1 hover:bg-accent rounded-md">
               <span className="text-lg">{currency.flag}</span>
               <span>
                 {currency.label} ({currency.symbol})

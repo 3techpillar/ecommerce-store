@@ -100,7 +100,7 @@ export const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
         onConfirm={onDelete}
         loading={loading}
       />
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <Heading title="Setting" description="Manage business preferences" />
         <Button
           disabled={loading}
@@ -117,7 +117,7 @@ export const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 w-full"
         >
-          <div className="grid grid-cols-3 gap-8">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
               name="logoImg"
@@ -156,7 +156,7 @@ export const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
               name="name"
@@ -180,7 +180,7 @@ export const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
             title="Currency"
             description="Update the currency settings"
           />
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
               name="currency"
@@ -198,7 +198,7 @@ export const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
             ></FormField>
           </div>
           <Heading title="Theme" description="Update the theme settings" />
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <FormField
               control={form.control}
               name="primaryColor"
@@ -213,7 +213,7 @@ export const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
                         placeholder="Primary color value"
                       />
                       <div
-                        className="border p-4 rounded-full"
+                        className="border p-4 rounded-full w-8 h-8"
                         style={{ backgroundColor: field.value }}
                       />
                     </div>
@@ -236,7 +236,7 @@ export const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
                         placeholder="Secondary color value"
                       />
                       <div
-                        className="border p-4 rounded-full"
+                        className="border p-4 rounded-full w-8 h-8"
                         style={{ backgroundColor: field.value }}
                       />
                     </div>
@@ -259,7 +259,7 @@ export const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
                         placeholder="Tertiary color value"
                       />
                       <div
-                        className="border p-4 rounded-full"
+                        className="border p-4 rounded-full w-8 h-8"
                         style={{ backgroundColor: field.value }}
                       />
                     </div>

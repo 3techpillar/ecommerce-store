@@ -47,12 +47,12 @@ const SettingPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-full">Loading...</div>
+      <div className="flex justify-center items-center h-full min-h-[300px]">Loading...</div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500">{error}</div>;
+    return <div className="flex justify-center items-center h-full min-h-[300px] text-red-500">{error}</div>;
   }
 
   if (!store) {
@@ -60,8 +60,8 @@ const SettingPage = () => {
   }
 
   return (
-    <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
+    <div className="flex flex-col items-center justify-center py-8 px-4 sm:px-6 lg:px-8 w-full">
+      <div className="w-full max-w-4xl">
         <SettingForm initialData={store} />
       </div>
     </div>
