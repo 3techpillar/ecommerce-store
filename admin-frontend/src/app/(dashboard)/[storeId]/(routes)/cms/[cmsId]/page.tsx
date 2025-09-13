@@ -43,7 +43,7 @@ const CmsPage = () => {
   if (loading) {
     return (
       <div className="flex-col">
-        <div className="flex-1 space-y-4 p-8 pt-6">Loading...</div>
+        <div className="flex justify-center items-center h-full p-8">Loading...</div>
       </div>
     );
   }
@@ -51,7 +51,7 @@ const CmsPage = () => {
   if (!cms && params.cmsId !== "new") {
     return (
       <div className="flex-col">
-        <div className="flex-1 space-y-4 p-8 pt-6">
+        <div className="flex flex-col justify-center items-center h-full p-8 space-y-4 text-center">
           <h1 className="text-2xl font-bold">Cms page not found</h1>
           <p>The requested CMS page could not be found.</p>
           <Button onClick={() => router.push("/cms")}>Go back to CMS</Button>
@@ -62,7 +62,7 @@ const CmsPage = () => {
 
   return (
     <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="p-4 sm:p-6 md:p-8 space-y-6">
         <CmsForm initialData={cms} />
       </div>
     </div>

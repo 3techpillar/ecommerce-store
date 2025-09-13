@@ -117,7 +117,8 @@ export const ShippingForm: React.FC<ShippingFormProps> = ({ initialData }) => {
         onConfirm={onDelete}
         loading={loading}
       />
-      <div className="flex items-center justify-between">
+      <div className="p-4 sm:p-6 md:p-8 space-y-6"></div>
+      <div className="flex justify-between items-center">
         <Heading title={title} description={description} />
         {initialData && (
           <Button
@@ -134,9 +135,9 @@ export const ShippingForm: React.FC<ShippingFormProps> = ({ initialData }) => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 w-full"
+          className="space-y-8"
         >
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <FormField
               control={form.control}
               name={"type"}
@@ -187,7 +188,7 @@ export const ShippingForm: React.FC<ShippingFormProps> = ({ initialData }) => {
               control={form.control}
               name="isActive"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Active</FormLabel>
                   </div>

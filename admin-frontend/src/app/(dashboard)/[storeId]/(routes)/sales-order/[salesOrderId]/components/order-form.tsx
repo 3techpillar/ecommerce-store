@@ -23,14 +23,14 @@ export const OrderForm: React.FC<OrderFormProps> = ({ initialData }) => {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-2">
+   <div className="p-4 sm:p-6 md:p-8 space-y-6">
+     
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div>
           <Heading title="Sales Order Item" description={initialData.orderId} />
-          <div className="flex items-center justify-center gap-2">
-            <div className="px-4 py-2 bg-gray-200 text-sm font-medium rounded-md">
+          <div  className="mt-2 bg-gray-200 px-3 py-1 rounded text-sm">
               <span className="font-semibold">Placed on:</span>{" "}
               {format(initialData.createdAt, "MMMM do yyyy, h:mm a")}
-            </div>
           </div>
         </div>
       </div>
@@ -40,7 +40,8 @@ export const OrderForm: React.FC<OrderFormProps> = ({ initialData }) => {
 
       <Heading title="Items Details" description="Order items details" />
 
-      <Table>
+     <div className="overflow-x-auto">
+       <Table className="min-w-[600px]">
         <TableHeader>
           <TableRow>
             <TableHead>Image</TableHead>
@@ -85,6 +86,9 @@ export const OrderForm: React.FC<OrderFormProps> = ({ initialData }) => {
           <TableCell className="font-bold">{initialData.totalPrice}</TableCell>
         </TableRow>
       </Table>
+     </div>
+      </div>
     </>
+   
   );
 };

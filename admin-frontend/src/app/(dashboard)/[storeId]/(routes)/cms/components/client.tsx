@@ -19,7 +19,8 @@ export const CategoryClient: React.FC<CmsClientProps> = ({ data }) => {
   const params = useParams();
   return (
     <>
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 md:p-8 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <Heading
           title={`CMS Pages (${data.length})`}
           description="Manage CMS Pages for your business"
@@ -30,7 +31,10 @@ export const CategoryClient: React.FC<CmsClientProps> = ({ data }) => {
         </Button>
       </div>
       <Separator />
+      <div className="overflow-x-auto">
       <DataTable columns={columns} data={data} searchableColumns={["name"]} />
+      </div>
+      </div>
     </>
   );
 };

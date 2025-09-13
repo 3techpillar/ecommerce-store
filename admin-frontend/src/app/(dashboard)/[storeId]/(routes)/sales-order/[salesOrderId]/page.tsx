@@ -46,31 +46,26 @@ const OrderPage = () => {
 
   if (loading) {
     return (
-      <div className="flex-col">
-        <div className="flex-1 space-y-4 p-8 pt-6">Loading...</div>
-      </div>
+        <div className="p-4 text-center">Loading...</div>
     );
   }
 
   if (!salesOrder && params.salesOrderId !== "new") {
     return (
-      <div className="flex-col">
-        <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="p-4 text-center space-y-4">
           <h1 className="text-2xl font-bold">sales order not found</h1>
           <p>The requested sales order could not be found.</p>
           <Button onClick={() => router.push("/sales-order")}>
             Go back to sales order
           </Button>
-        </div>
-      </div>
+        </div> 
     );
   }
 
   return (
-    <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
+    
+      <div className="p-4 sm:p-6 md:p-8">
         <OrderForm initialData={salesOrder} />
-      </div>
     </div>
   );
 };
