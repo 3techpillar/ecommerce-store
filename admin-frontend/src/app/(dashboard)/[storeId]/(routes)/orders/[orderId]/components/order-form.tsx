@@ -113,7 +113,6 @@ export const OrderForm: React.FC<OrderFormProps> = ({ initialData }) => {
 
   return (
     <div className="space-y-10">
-      {/* Order Header */}
       <div className="p-5 bg-white rounded-xl shadow-sm">
         <Heading title="Order Summary" description={`Order ID: ${initialData._id}`} />
         <div className="flex flex-wrap gap-3 mt-4">
@@ -198,26 +197,26 @@ export const OrderForm: React.FC<OrderFormProps> = ({ initialData }) => {
           </TableBody>
         </Table>
       </div>
-
-      {/* Order History */}
-      <div className="p-5 bg-white rounded-xl shadow-sm">
+            <div className="p-5 bg-white rounded-xl shadow-sm">
         <Heading title="Order History" description="Track past updates" />
         <div className="relative border-l-2 border-gray-200 ml-3 mt-6">
           {initialData.history.map((item) => (
             <div key={item._id} className="ml-4 mb-6 relative">
-              <div className="absolute -left-[11px] w-4 h-4 bg-blue-500 rounded-full border-2 border-white"></div>
-              <p className="text-xs text-gray-500">
+              <div className="absolute -left-6 top-1 w-4 h-4 bg-blue-500 rounded-full border-2 border-white"></div>
+              <div className="pl-2">
+              <p className="text-xs text-gray-400 mb-1">
                 {format(new Date(item.timestamp), "dd MMM yyyy, hh:mm a")}
               </p>
-              <p className="font-medium">
-                Order: {item.orderStatusLog} | Payment: {item.paymentStatusLog}
+              <p className="font-semibold text-gray-700 mb-2">
+               <span className="text-blue-500"> Order:</span> {item.orderStatusLog} | {" "} <span className="text-blue-500">Payment: </span>{item.paymentStatusLog}
               </p>
               {item.comment && (
-                <p className="text-sm text-gray-600">💬 {item.comment}</p>
+                <p className="text-sm text-gray-600 mb-2 bg-gray-50 p-2 rounded-lg border border-gray-200">💬 {item.comment}</p>
               )}
               {item.writtenBy && (
-                <p className="text-xs text-gray-500">By {item.writtenBy}</p>
+                <p className="text-xs text-gray-500 italic">By {item.writtenBy}</p>
               )}
+              </div>
             </div>
           ))}
         </div>
