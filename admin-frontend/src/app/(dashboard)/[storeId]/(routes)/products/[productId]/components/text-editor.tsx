@@ -38,9 +38,9 @@ const MenuButton = React.forwardRef<
   <Button
     ref={ref}
     variant="ghost"
-    size="sm"
+    size="icon"
     className={cn(
-      "h-8 w-8 p-1",
+      "h-8 w-8 p-1 sm:h-10 sm:w-10 sm:p-2",
       active && "bg-sky-300 text-primary",
       className
     )}
@@ -90,24 +90,20 @@ const RichTextEditor = ({
     editable: !disabled,
     editorProps: {
       attributes: {
-        class: "prose prose-sm max-w-none focus:outline-none min-h-[150px] p-3",
+        class: "prose prose-sm max-w-none focus:outline-none min-h-[150px] p-3 sm:p-4",
       },
     },
   });
 
   const setLink = useCallback(() => {
     if (!editor) return;
-
     const previousUrl = editor.getAttributes("link").href;
     const url = window.prompt("Enter URL", previousUrl);
-
     if (url === null) return;
-
     if (url === "") {
       editor.chain().focus().unsetLink().run();
       return;
     }
-
     editor.chain().focus().setLink({ href: url }).run();
   }, [editor]);
 
@@ -117,7 +113,7 @@ const RichTextEditor = ({
       editor
         .chain()
         .focus()
-        .insertContent(`<img src="${url}" alt="Uploaded image" />`)
+        .insertContent(`<img src="${url}" alt="Uploaded image" class="max-w-full h-auto" />`)
         .run();
     },
     [editor]
@@ -131,15 +127,13 @@ const RichTextEditor = ({
     [editor]
   );
 
-  if (!editor) {
-    return null;
-  }
+  if (!editor) return null;
 
   return (
     <div className="rounded-lg border bg-background">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex items-center justify-between px-3 py-2 border-b">
-          <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b">
+          <div className="flex flex-wrap gap-1 overflow-x-auto">
             <MenuButton
               onClick={(e) => {
                 e.preventDefault();
@@ -147,8 +141,9 @@ const RichTextEditor = ({
               }}
               disabled={!editor.can().chain().focus().toggleBold().run()}
               active={editor.isActive("bold")}
+              tooltip="Bold"
             >
-              <Bold className="h-4 w-4" />
+              <Bold className="h-4 w-4 sm:h-5 sm:w-5" />
             </MenuButton>
             <MenuButton
               onClick={(e) => {
@@ -157,8 +152,9 @@ const RichTextEditor = ({
               }}
               disabled={!editor.can().chain().focus().toggleItalic().run()}
               active={editor.isActive("italic")}
+              tooltip="Italic"
             >
-              <Italic className="h-4 w-4" />
+              <Italic className="h-4 w-4 sm:h-5 sm:w-5" />
             </MenuButton>
             <MenuButton
               onClick={(e) => {
@@ -167,8 +163,9 @@ const RichTextEditor = ({
               }}
               disabled={!editor.can().chain().focus().toggleUnderline().run()}
               active={editor.isActive("underline")}
+              tooltip="Underline"
             >
-              <UnderlineIcon className="h-4 w-4" />
+              <UnderlineIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             </MenuButton>
             <MenuButton
               onClick={(e) => {
@@ -176,8 +173,9 @@ const RichTextEditor = ({
                 setLink();
               }}
               active={editor.isActive("link")}
+              tooltip="Link"
             >
-              <LinkIcon className="h-4 w-4" />
+              <LinkIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             </MenuButton>
             <MenuButton
               onClick={(e) => {
@@ -185,8 +183,9 @@ const RichTextEditor = ({
                 toggleHeading(1);
               }}
               active={editor.isActive("heading", { level: 1 })}
+              tooltip="Heading 1"
             >
-              <Heading1 className="h-4 w-4" />
+              <Heading1 className="h-4 w-4 sm:h-5 sm:w-5" />
             </MenuButton>
             <MenuButton
               onClick={(e) => {
@@ -194,8 +193,9 @@ const RichTextEditor = ({
                 toggleHeading(2);
               }}
               active={editor.isActive("heading", { level: 2 })}
+              tooltip="Heading 2"
             >
-              <Heading2 className="h-4 w-4" />
+              <Heading2 className="h-4 w-4 sm:h-5 sm:w-5" />
             </MenuButton>
             <MenuButton
               onClick={(e) => {
@@ -203,8 +203,9 @@ const RichTextEditor = ({
                 editor.chain().focus().toggleBulletList().run();
               }}
               active={editor.isActive("bulletList")}
+              tooltip="Bullet List"
             >
-              <List className="h-4 w-4" />
+              <List className="h-4 w-4 sm:h-5 sm:w-5" />
             </MenuButton>
             <MenuButton
               onClick={(e) => {
@@ -212,20 +213,22 @@ const RichTextEditor = ({
                 editor.chain().focus().toggleOrderedList().run();
               }}
               active={editor.isActive("orderedList")}
+              tooltip="Ordered List"
             >
-              <ListOrdered className="h-4 w-4" />
+              <ListOrdered className="h-4 w-4 sm:h-5 sm:w-5" />
             </MenuButton>
             <ImageUploadButton disabled={disabled} onUpload={addImage} />
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex gap-1">
             <MenuButton
               onClick={(e) => {
                 e.preventDefault();
                 editor.chain().focus().undo().run();
               }}
               disabled={!editor.can().chain().focus().undo().run()}
+              tooltip="Undo"
             >
-              <Undo className="h-4 w-4" />
+              <Undo className="h-4 w-4 sm:h-5 sm:w-5" />
             </MenuButton>
             <MenuButton
               onClick={(e) => {
@@ -233,8 +236,9 @@ const RichTextEditor = ({
                 editor.chain().focus().redo().run();
               }}
               disabled={!editor.can().chain().focus().redo().run()}
+              tooltip="Redo"
             >
-              <Redo className="h-4 w-4" />
+              <Redo className="h-4 w-4 sm:h-5 sm:w-5" />
             </MenuButton>
           </div>
         </div>
@@ -243,11 +247,13 @@ const RichTextEditor = ({
           <TabsTrigger value="preview">Preview</TabsTrigger>
         </TabsList>
         <TabsContent value="write" className="mt-0">
-          <EditorContent editor={editor} disabled={disabled} />
+          <div className="min-h-[150px] sm:min-h-[300px] overflow-auto">
+            <EditorContent editor={editor} disabled={disabled} />
+          </div>
         </TabsContent>
         <TabsContent value="preview" className="mt-0">
           <div
-            className="prose prose-sm max-w-none p-3"
+            className="prose prose-sm sm:prose lg:prose-lg max-w-none p-3 sm:p-4 overflow-auto"
             dangerouslySetInnerHTML={{
               __html: editor.getHTML(),
             }}

@@ -45,7 +45,7 @@ const ShippingPage = () => {
   if (loading) {
     return (
       <div className="flex-col">
-        <div className="flex-1 space-y-4 p-8 pt-6">Loading...</div>
+        <div className="flex-1 space-y-4 p-4 text-center pt-6">Loading...</div>
       </div>
     );
   }
@@ -53,7 +53,7 @@ const ShippingPage = () => {
   if (!shipping && params.shippingId !== "new") {
     return (
       <div className="flex-col">
-        <div className="flex-1 space-y-4 p-8 pt-6">
+        <div className="flex-1 space-y-4 p-4  text-center pt-6">
           <h1 className="text-2xl font-bold">Shipping charges not found</h1>
           <p>The requested shipping charges could not be found.</p>
           <Button onClick={() => router.push("/shipping")}>
@@ -66,7 +66,7 @@ const ShippingPage = () => {
 
   return (
     <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex-1 space-y-4 pt-6 p-4 sm:p-6 md:p-8">
         <ShippingForm initialData={shipping} />
       </div>
     </div>

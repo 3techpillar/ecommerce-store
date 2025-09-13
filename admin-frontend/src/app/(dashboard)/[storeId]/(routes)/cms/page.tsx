@@ -11,14 +11,19 @@ const CMS = () => {
   const [cms, setCms] = useState([]);
   const params = useParams();
 
-  const fetchCms = async () => {
+  const fetchCms = async () =>
+     {
     try {
-      const response = await api.get(`/v1/cms/get-all/${params.storeId}`);
+      const response = await 
+      api.get(`/v1/cms/
+      get-all/${params.
+      storeId}`);
 
-      setCms(response.data.cms);
+      setCms(response.data.
+        cms);
     } catch (error) {
       console.log("Error while fetching category", error);
-    }
+     }
   };
 
   useEffect(() => {
@@ -34,7 +39,7 @@ const CMS = () => {
 
   return (
     <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="p-4 sm:p-6 md:p-8 space-y-6">
         <CategoryClient data={formattedBanners} />
       </div>
     </div>

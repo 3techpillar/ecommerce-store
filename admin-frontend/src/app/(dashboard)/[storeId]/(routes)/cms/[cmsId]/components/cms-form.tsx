@@ -52,7 +52,8 @@ export const CmsForm: React.FC<CmsFormProps> = ({ initialData }) => {
   const [loading, setLoading] = useState(false);
 
   const title = initialData ? "Edit Cms page" : "Create Cms page";
-  const description = initialData
+  const description = 
+  initialData
     ? "Edit Cms page details"
     : "Add a new Cms page";
   const toastMessage = initialData ? "Cms page updated." : "Cms page created.";
@@ -86,13 +87,15 @@ export const CmsForm: React.FC<CmsFormProps> = ({ initialData }) => {
       toast.success(toastMessage);
     } catch (error) {
       toast.error("Something went wrong!");
-      console.error("Error submitting form:", error);
+      console.error("Error submitting form:", 
+        error);
     } finally {
       setLoading(false);
     }
   };
 
-  const onDelete = async () => {
+  const onDelete = async () => 
+    {
     try {
       setLoading(true);
       await api.delete(`/v1/cms/delete/${params.cmsId}`);
@@ -116,7 +119,7 @@ export const CmsForm: React.FC<CmsFormProps> = ({ initialData }) => {
         onConfirm={onDelete}
         loading={loading}
       />
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <Heading title={title} description={description} />
         {initialData && (
           <Button
@@ -135,7 +138,7 @@ export const CmsForm: React.FC<CmsFormProps> = ({ initialData }) => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 w-full"
         >
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
             <FormField
               control={form.control}
               name="image"
@@ -212,28 +215,31 @@ export const CmsForm: React.FC<CmsFormProps> = ({ initialData }) => {
               )}
             />
           </div>
-          <div>
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <RichTextEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                      disabled={loading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+         
+         <div className="w-full">
+  <FormField
+    control={form.control}
+    name="description"
+    render={({ field }) => (
+      <FormItem className="w-full">
+        <FormLabel>Description</FormLabel>
+        <FormControl>
+          <RichTextEditor
+            value={field.value}
+            onChange={field.onChange}
+            disabled={loading}
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+</div>
+
           <Separator />
-          <Heading title="Meta Data" description="For SEO Optimisation" />
-          <div className="grid grid-cols-2 gap-8">
+          <Heading title="Meta Data" description="For SEO Optimization" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8
+          ">
             <FormField
               control={form.control}
               name="metaTitle"
