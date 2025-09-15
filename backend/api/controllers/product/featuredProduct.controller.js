@@ -110,9 +110,13 @@ export const getFeaturedProducts = async (req, res, next) => {
       isActive: true,
     }).populate({
       path: "selectedProducts",
-      populate: {
-        path: "price",
-      },
+      populate: [
+        {
+          path: "price",
+        },
+        { path: "category", select: "name" },
+        { path: "brand", select: "brandName" },
+      ],
     });
 
     if (!featuredProducts || featuredProducts.length === 0) {
@@ -136,7 +140,14 @@ export const getFeaturedProductsById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const featuredProduct = await FeaturedSection.findById(id);
+    const featuredProduct = await FeaturedSection.findById(id).populate({
+      path: "selectedProducts",
+      populate: [
+        { path: "price" },
+        { path: "category", select: "name" },
+        { path: "brand", select: "brandName" },
+      ],
+    });
 
     if (!featuredProduct) {
       return next(errorHandler(404, "Products not found"));
