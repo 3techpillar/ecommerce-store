@@ -2,6 +2,10 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { errorHandler } from "../../utils/error.js";
 import User from "../../models/user/user.modal.js";
+import OTP from "../../models/otp.model.js";
+import { generateOTP } from "../../utils/generateOTP.js";
+import sendEmail from "../../utils/sendEmail.js";
+ 
 import {
   googleClientId,
   googleClientSecret,
@@ -162,6 +166,102 @@ export const signout = (req, res, next) => {
     next(error);
   }
 };
+
+export const forgotPassword = async (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email) return next(errorHandler(400, "Email is required"));
+
+  try {
+    const validUser = await User.findOne({ email });
+    if (!validUser) return next(errorHandler(404, "User not found"));
+
+    const otp = generateOTP();
+
+    const saveOTP = new OTP({
+      userId: validUser._id,
+      otp,
+      expiry: Date.now() + 10 * 60 * 1000,
+    });
+    await saveOTP.save();
+
+    // ✅ Enable in production
+    // await sendEmail(
+    //   validUser.email,
+    //   "Password Reset OTP",
+    //   `Your OTP is: ${otp}\nIt is valid for 10 minutes.`
+    // );
+
+    res.status(200).json({ message: "OTP sent successfully", otp });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ----------------- Verify OTP -----------------
+export const verifyOtp = async (req, res, next) => {
+  const { email, otp, password } = req.body;
+
+  if (!email || !otp || !password) {
+    return next(errorHandler(400, "Email, OTP and new password are required"));
+  }
+
+  try {
+    const validUser = await User.findOne({ email });
+    if (!validUser) return next(errorHandler(404, "User not found"));
+
+    const otpDoc = await OTP.findOne({
+      userId: validUser._id,
+      otp,
+      expiry: { $gt: Date.now() },
+    });
+
+    if (!otpDoc) return next(errorHandler(400, "Invalid or expired OTP"));
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    validUser.password = hashedPassword;
+    await validUser.save();
+
+    await OTP.deleteMany({ userId: validUser._id });
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ----------------- Reset Password -----------------
+export const resetPassword = async (req, res, next) => {
+  const { email, otp, newPassword } = req.body;
+
+  if (!email || !otp || !newPassword)
+    return next(errorHandler(400, "Email, OTP and newPassword are required"));
+
+  try {
+    const validUser = await User.findOne({ email });
+    if (!validUser) return next(errorHandler(404, "User not found"));
+
+    const otpDoc = await OTP.findOne({
+      userId: validUser._id,
+      otp,
+      expiry: { $gt: Date.now() },
+    });
+
+    if (!otpDoc) return next(errorHandler(400, "Invalid or expired OTP"));
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    validUser.password = hashedPassword;
+    await validUser.save();
+
+    await OTP.deleteMany({ userId: validUser._id });
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 
 export const updateUser = async (req, res, next) => {
   try {

@@ -93,10 +93,11 @@ export const clearWishlist = async (req, res, next) => {
     wishlist.products = [];
 
     await wishlist.save();
-
+const updatedWishlist = await Wishlist.findOne({ user: userId }).populate("products");
     return res.status(200).json({
       success: true,
       message: "Product removed from wishlist successfully",
+       wishlist: updatedWishlist,
     });
   } catch (error) {
     console.log("POST_CLEARWISHLIST");
