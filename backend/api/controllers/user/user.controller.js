@@ -126,7 +126,7 @@ export const googleLogin = async (req, res, next) => {
         },
       }
     );
-    if (!googleUser.email) throw new BadRequestError("Google login failed");
+    if (!googleUser.email) {return next(errorHandler(400, "Google login failed"));}
 
     let user = await User.findOne({ email: googleUser.email });
 
@@ -144,7 +144,7 @@ export const googleLogin = async (req, res, next) => {
 
     res
       .status(200)
-      .cookie("access_token", token, {
+      .cookie("token", token, {
         httpOnly: true,
         maxAge: 180 * 24 * 60 * 60 * 1000,
         secure: process.env.NODE_ENV === "production",
