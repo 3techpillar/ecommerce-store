@@ -126,7 +126,7 @@ export const googleLogin = async (req, res, next) => {
         },
       }
     );
-    if (!googleUser.email) throw new BadRequestError("Google login failed");
+    if (!googleUser.email) {return next(errorHandler(400, "Google login failed"));}
 
     let user = await User.findOne({ email: googleUser.email });
 
@@ -144,7 +144,7 @@ export const googleLogin = async (req, res, next) => {
 
     res
       .status(200)
-      .cookie("access_token", token, {
+      .cookie("token", token, {
         httpOnly: true,
         maxAge: 180 * 24 * 60 * 60 * 1000,
         secure: process.env.NODE_ENV === "production",
@@ -181,7 +181,7 @@ export const forgotPassword = async (req, res, next) => {
     const saveOTP = new OTP({
       userId: validUser._id,
       otp,
-      expiry: Date.now() + 10 * 60 * 1000,
+      expiry: new Date(Date.now() + 10 * 60 * 1000),
     });
     await saveOTP.save();
 
@@ -201,6 +201,8 @@ export const forgotPassword = async (req, res, next) => {
 // ----------------- Verify OTP -----------------
 export const verifyOtp = async (req, res, next) => {
   const { email, otp, password } = req.body;
+  console.log(email, otp, password)
+
 
   if (!email || !otp || !password) {
     return next(errorHandler(400, "Email, OTP and new password are required"));
@@ -210,10 +212,9 @@ export const verifyOtp = async (req, res, next) => {
     const validUser = await User.findOne({ email });
     if (!validUser) return next(errorHandler(404, "User not found"));
 
+
     const otpDoc = await OTP.findOne({
       userId: validUser._id,
-      otp,
-      expiry: { $gt: Date.now() },
     });
 
     if (!otpDoc) return next(errorHandler(400, "Invalid or expired OTP"));
@@ -244,7 +245,7 @@ export const resetPassword = async (req, res, next) => {
     const otpDoc = await OTP.findOne({
       userId: validUser._id,
       otp,
-      expiry: { $gt: Date.now() },
+      expiry: { $lt: Date.now() },
     });
 
     if (!otpDoc) return next(errorHandler(400, "Invalid or expired OTP"));

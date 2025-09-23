@@ -318,7 +318,7 @@ export const removeFromCart = async (req, res, next) => {
     }
 
     const productIndex = cart.items.findIndex(
-      (item) => item.product._id.toString() === productId
+      (item) =>item.product && item.product._id.toString() === productId
     );
 
     if (productIndex === -1) {
@@ -408,7 +408,7 @@ export const getCart = async (req, res, next) => {
   try {
     const { userId } = req.params;
 
-    const cart = await Cart.findOne({ user: userId, isActive: true }).populate({
+    let cart = await Cart.findOne({ user: userId, isActive: true }).populate({
       path: "items.product",
       populate: {
         path: "price",
@@ -416,11 +416,42 @@ export const getCart = async (req, res, next) => {
       },
     });
 
+    
     if (!cart) {
-      return next(errorHandler(200, "Cart not found"));
+      return res.status(200).json({
+        success: true,
+        message: "Cart is empty",
+        cart: null,
+      });
     }
 
-    return res.status(201).json({
+    
+    cart.items = cart.items.filter((item) => item.product !== null);
+
+    
+    const totals = cart.items.reduce(
+      (acc, item) => {
+        const itemPrice =
+          item.product.price.discounted_price || item.product.price.price;
+        const originalPrice = item.product.price.price;
+        const itemDiscount = (originalPrice - itemPrice) * item.quantity;
+
+        return {
+          totalPrice: acc.totalPrice + itemPrice * item.quantity,
+          totalDiscount: acc.totalDiscount + itemDiscount,
+        };
+      },
+      { totalPrice: 0, totalDiscount: 0 }
+    );
+
+    cart.totalPrice = totals.totalPrice;
+    cart.discount = totals.totalDiscount;
+    cart.totalPriceAfterDiscount = cart.totalPrice - cart.discount;
+    cart.netPrice = cart.totalPriceAfterDiscount;
+
+    await cart.save();
+
+    return res.status(200).json({
       success: true,
       message: "Cart fetched successfully",
       cart: await populateCart(cart._id),
@@ -430,6 +461,7 @@ export const getCart = async (req, res, next) => {
     next(error);
   }
 };
+
 
 export const clearCart = async (req, res, next) => {
   const { userId } = req.params;

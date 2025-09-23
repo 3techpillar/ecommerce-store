@@ -3,7 +3,7 @@ import Product from "../../models/product/product.model.js";
 import Price from "../../models/product/price.model.js";
 import Offer from "../../models/product/offer.model.js";
 import Category from "../../models/categories/category.model.js";
-
+import Cart from "../../models/cart.modal.js";
 import { errorHandler } from "../../utils/error.js";
 import { getAllChildCategories } from "../../utils/childCategory.js";
 
@@ -125,7 +125,7 @@ export const updateProduct = async (req, res, next) => {
   } = req.body;
 
   try {
-    const existingProduct = await Product.findById(productId);
+    const existingProduct = await Product.findById(productId).populate("price");
     if (!existingProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -231,6 +231,10 @@ export const deleteProduct = async (req, res, next) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+await Cart.updateMany(
+      { "items.product": productId },
+      { $pull: { items: { product: productId } } }
+    );
 
     const price = await Price.findById(product.price);
 
@@ -471,7 +475,7 @@ export const getProductById = async (req, res, next) => {
       .populate("category")
       .populate("images");
 
-    if (!fetchProductById || fetchProductById.length === 0) {
+    if (!fetchProductById ) {
       return res.status(404).json({ message: "No products found" });
     }
 
@@ -499,7 +503,7 @@ export const getProductBySlug = async (req, res, next) => {
       .populate("category")
       .populate("images");
 
-    if (!fetchProductById || fetchProductById.length === 0) {
+    if (!fetchProductById || fetchProductById) {
       return res.status(404).json({ message: "No products found" });
     }
 
