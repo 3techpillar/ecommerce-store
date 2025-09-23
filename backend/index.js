@@ -29,10 +29,12 @@ import addressRoutes from "./api/routes/user/address.route.js";
 import cartRoutes from "./api/routes/cart.route.js";
 import wishlistRoutes from "./api/routes/user/wishlist.route.js";
 import recentViewRoutes from "./api/routes/user/recentView.route.js";
+import uploadRoutes from "./api/routes/upload.routes.js";
 
 import orderRoutes from "./api/routes/order.route.js";
 
 import { API_V } from "./api/utils/constant.js";
+import paymentRoutes from "./api/routes/payment.route.js";
 
 dotenv.config();
 
@@ -92,8 +94,10 @@ app.use(`/${API_V}/address`, addressRoutes);
 app.use(`/${API_V}/cart`, cartRoutes);
 app.use(`/${API_V}/wishlist`, wishlistRoutes);
 app.use(`/${API_V}/recent-view`, recentViewRoutes);
+app.use(`/${API_V}/upload`, uploadRoutes);
 
 app.use(`/${API_V}/order`, orderRoutes);
+app.use(`/${API_V}/payment`, paymentRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
