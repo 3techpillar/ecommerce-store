@@ -249,6 +249,7 @@ export const getAllCategories = async (req, res, next) => {
       isActive: true,
       parentCategory: null,
     });
+    // get children
     const getChildren = async (parentId) => {
       const children = await Category.find({
         parentCategory: parentId,
