@@ -244,16 +244,29 @@ export const getAllCategories = async (req, res, next) => {
   const { storeId } = req.params;
 
   try {
-    const topLevelCategory = await Category.find({
+    const topLevelCategories = await Category.find({
       storeId,
       isActive: true,
       parentCategory: null,
     });
+    const getChildren = async (parentId) => {
+      const children = await Category.find({
+        parentCategory: parentId,
+        isActive: true,
+      });
+      const results = await Promise.all(
+        children.map(async (child) => ({
+          ...child.toObject(),
+          children: await getChildren(child._id),
+        }))
+      );
+      return results;
+    };
 
     const categoriesWithChildren = await Promise.all(
-      topLevelCategory.map(async (category) => ({
+      topLevelCategories.map(async (category) => ({
         ...category.toObject(),
-        children: await Category.findDescendants(category._id),
+        children: await getChildren(category._id),
       }))
     );
 
@@ -262,6 +275,7 @@ export const getAllCategories = async (req, res, next) => {
       categories: categoriesWithChildren,
     });
   } catch (error) {
+    console.error("Error in getAllCategories:", error);
     return next(errorHandler(500, "Server error", error.message));
   }
 };
@@ -281,7 +295,6 @@ export const getActiveCategories = async (req, res, next) => {
   try {
     const { storeId } = req.params;
     const categories = await Category.find({ storeId, isActive: true });
-
     res.status(200).json({ categories });
   } catch (error) {
     console.error("Error fetching categories:", error);
