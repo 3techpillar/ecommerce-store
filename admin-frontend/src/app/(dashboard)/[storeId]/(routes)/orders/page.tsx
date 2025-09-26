@@ -69,17 +69,22 @@ const Order = () => {
     fetchOrders();
   }, []);
 
-  const formattedOrders: OrderColumn[] = orders.map((item) => ({
-    id: item._id,
-    _id: item._id,
-    name: item.user.name,
-    totalPriceAfterDiscount: store?.currency
-      ? formatPrice(item.totalPriceAfterDiscount, store.currency)
-      : item.totalPriceAfterDiscount,
-    paymentStatus: item.paymentStatus,
-    orderStatus: item.orderStatus,
-    createdAt: format(item.createdAt, "MMMM do yyyy, h:mm a"),
-  }));
+  const formattedOrders: OrderColumn[] = [...orders]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+    .map((item) => ({
+      id: item._id,
+      _id: item._id,
+      name: item.user?.name ?? "N/A",
+      totalPriceAfterDiscount: store?.currency
+        ? formatPrice(item.totalPriceAfterDiscount, store.currency)
+        : item.totalPriceAfterDiscount,
+      paymentStatus: item.paymentStatus,
+      orderStatus: item.orderStatus,
+      createdAt: format(new Date(item.createdAt), "MMMM do yyyy, h:mm a"),
+    }));
 
   return (
     <div className="flex-col">
