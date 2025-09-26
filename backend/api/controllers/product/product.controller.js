@@ -503,7 +503,7 @@ export const getProductBySlug = async (req, res, next) => {
       .populate("category")
       .populate("images");
 
-    if (!fetchProductById || fetchProductById) {
+    if (!fetchProductById) {
       return res.status(404).json({ message: "No products found" });
     }
 
