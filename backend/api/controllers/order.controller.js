@@ -3,6 +3,7 @@ import Cart from "../models/cart.modal.js";
 import { errorHandler } from "../utils/error.js";
 import SalesOrder from "../models/salesOrder.model.js";
 import MostPurchasedProduct from "../models/mostPurchased.model.js";
+import Product from "../models/product/product.model.js";
 
 export const createOrder = async (req, res, next) => {
   try {
@@ -38,7 +39,26 @@ export const createOrder = async (req, res, next) => {
     if (!cart.selectedShippingMethod?.shippingType) {
       return next(errorHandler(400, "Shipping method is required"));
     }
+    for (const item of cart.items) {
+      const product = await Product.findById(item.product._id);
 
+      if (!product) {
+        return next(errorHandler(404, "Product not found"));
+      }
+
+      if (product.is_manage_stock) {
+        if (product.stock < item.quantity) {
+          return next(
+            errorHandler(400, `${product.name} has only ${product.stock} left`)
+          );
+        }
+
+        // reduce stock
+        product.stock -= item.quantity;
+        product.is_instock = product.stock > 0;
+        await product.save();
+      }
+    }
     const orderItems = cart.items.map((item) => ({
       product: {
         _id: item.product._id,
@@ -231,7 +251,14 @@ export const cancelOrder = async (req, res, next) => {
     if (!["pending", "confirmed"].includes(order.orderStatus)) {
       return next(errorHandler(400, "This order cannot be cancelled"));
     }
-
+    for (const item of order.items) {
+      const product = await Product.findById(item.product._id);
+      if (product && product.is_manage_stock) {
+        product.stock += item.quantity;
+        product.is_instock = product.stock > 0;
+        await product.save();
+      }
+    }
     order.orderStatus = "cancelled";
 
     await order.save();

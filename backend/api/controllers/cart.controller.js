@@ -34,7 +34,7 @@ export const addToCart = async (req, res, next) => {
     const { userId, productId, quantity } = req.body;
 
     // Validate input data
-    if (!userId || !productId || !quantity) {
+    if (!userId || !productId || typeof quantity !== "number") {
       return next(errorHandler(400, "Invalid input data"));
     }
 
@@ -55,7 +55,10 @@ export const addToCart = async (req, res, next) => {
         errorHandler(404, "Price details not found for this product")
       );
     }
-
+    
+if (quantity > product.stock) {
+  return next(errorHandler(400, `Only ${product.stock} units available in stock`));
+}
     const { price: originalPrice = 0, discounted_price = originalPrice } =
       product.price;
 
@@ -82,27 +85,41 @@ export const addToCart = async (req, res, next) => {
     );
 
     if (existingItemIndex > -1) {
-      // Update quantity and details of existing item
-      const updatedQuantity = cart.items[existingItemIndex].quantity + quantity;
+  const updatedQuantity = quantity;
 
-      cart.items[existingItemIndex] = {
-        product: productId,
-        quantity: updatedQuantity,
-        price: discounted_price,
-        totalProductDiscount:
-          (originalPrice - discounted_price) * updatedQuantity,
-        totalPrice: discounted_price * updatedQuantity,
-      };
-    } else {
-      // Add new item to the cart
-      cart.items.push({
-        product: productId,
-        quantity,
-        price: discounted_price,
-        totalProductDiscount: (originalPrice - discounted_price) * quantity,
-        totalPrice: discounted_price * quantity,
-      });
+  if (updatedQuantity <= 0) {
+    // remove item if quantity goes to 0
+    cart.items.splice(existingItemIndex, 1);
+  } else {
+    // ✅ Stock validation
+    if (updatedQuantity > product.stock) {
+      return next(errorHandler(400, `Only ${product.stock} units available`));
     }
+
+    cart.items[existingItemIndex] = {
+      product: productId,
+      quantity: updatedQuantity,
+      price: discounted_price,
+      totalProductDiscount:
+        (originalPrice - discounted_price) * updatedQuantity,
+      totalPrice: discounted_price * updatedQuantity,
+    };
+  }
+} 
+else {
+  // New item case
+  if (quantity > product.stock) {
+    return next(errorHandler(400, `Only ${product.stock} units available`));
+  }
+
+  cart.items.push({
+    product: productId,
+    quantity,
+    price: discounted_price,
+    totalProductDiscount: (originalPrice - discounted_price) * quantity,
+    totalPrice: discounted_price * quantity,
+  });
+}
 
     // Recalculate cart totals
     const totals = cart.items.reduce(
