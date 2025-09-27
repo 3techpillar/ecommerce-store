@@ -85,25 +85,23 @@ if (quantity > product.stock) {
     );
 
     if (existingItemIndex > -1) {
-  const updatedQuantity = quantity;
+  const currentQuantity = cart.items[existingItemIndex].quantity;
+  const updatedQuantity = currentQuantity + quantity;
 
   if (updatedQuantity <= 0) {
-    // remove item if quantity goes to 0
-    cart.items.splice(existingItemIndex, 1);
+     cart.items.splice(existingItemIndex, 1);
   } else {
-    // ✅ Stock validation
+    //  Stock validation
     if (updatedQuantity > product.stock) {
       return next(errorHandler(400, `Only ${product.stock} units available`));
     }
 
-    cart.items[existingItemIndex] = {
-      product: productId,
-      quantity: updatedQuantity,
-      price: discounted_price,
-      totalProductDiscount:
-        (originalPrice - discounted_price) * updatedQuantity,
-      totalPrice: discounted_price * updatedQuantity,
-    };
+     cart.items[existingItemIndex].quantity = updatedQuantity;
+    cart.items[existingItemIndex].price = discounted_price;
+    cart.items[existingItemIndex].totalProductDiscount =
+      (originalPrice - discounted_price) * updatedQuantity;
+    cart.items[existingItemIndex].totalPrice =
+      discounted_price * updatedQuantity;
   }
 } 
 else {
