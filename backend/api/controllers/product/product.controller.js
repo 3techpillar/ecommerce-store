@@ -141,7 +141,7 @@ export const updateProduct = async (req, res, next) => {
       category,
       description,
       stock,
-      is_instock,
+      is_instock: stock > 0,
       is_manage_stock,
       seo: {
         title: seo?.title || null,
@@ -231,7 +231,7 @@ export const deleteProduct = async (req, res, next) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-await Cart.updateMany(
+    await Cart.updateMany(
       { "items.product": productId },
       { $pull: { items: { product: productId } } }
     );
@@ -475,7 +475,7 @@ export const getProductById = async (req, res, next) => {
       .populate("category")
       .populate("images");
 
-    if (!fetchProductById ) {
+    if (!fetchProductById) {
       return res.status(404).json({ message: "No products found" });
     }
 
